@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package notification.v1;
+
+
+service NotificationService {
+  rpc SendEmail (EmailRequest) returns (NotificationResponse);
+  rpc SendPush (PushRequest) returns (NotificationResponse);
+  rpc SendSMS (SMSRequest) returns (NotificationResponse);
+}
+
+message EmailRequest {
+  string to = 1;
+  string subject = 2;
+  string body = 3;
+  map<string, string> metadata = 4;
+}
+
+message PushRequest {
+  string device_token = 1;
+  string title = 2;
+  string body = 3;
+  map<string, string> data = 4;
+}
+
+message SMSRequest {
+  string to = 1;
+  string body = 2;
+}
+
+message NotificationResponse {
+  bool success = 1;
+  string message = 2;
+  string notification_id = 3;
+}
