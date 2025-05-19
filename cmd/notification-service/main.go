@@ -12,10 +12,10 @@ import (
 	"ride-sharing-notification/internal/delivery/kafka"
 	"ride-sharing-notification/internal/pkg/email"
 	"ride-sharing-notification/internal/pkg/firebase"
-	"ride-sharing-notification/internal/pkg/kafka"
 	"ride-sharing-notification/internal/pkg/logger"
 
-	"github.com/yourorg/ride-sharing-notification/internal/delivery/grpc"
+	"ride-sharing-notification/internal/delivery/grpc"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
