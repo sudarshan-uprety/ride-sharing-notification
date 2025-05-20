@@ -16,8 +16,8 @@ type Server struct {
 	pb.UnimplementedNotificationServiceServer
 	kafkaProducer kafka.Producer
 	logger        *zap.Logger
-	emailService  pb.EmailServiceClient // Your email service interface
-	pushService   pb.PushServiceClient  // Your push service interface
+	emailService  pb.EmailServiceClient
+	pushService   pb.PushServiceClient
 }
 
 func NewServer(kafkaProducer kafka.Producer, logger *zap.Logger, emailService pb.EmailServiceClient, pushService pb.PushServiceClient) *Server {
