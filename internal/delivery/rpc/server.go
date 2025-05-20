@@ -98,3 +98,41 @@ func (s *Server) ProcessKafkaNotification(ctx context.Context, req *pb.KafkaNoti
 		return nil, status.Errorf(codes.InvalidArgument, "unknown notification type: %s", req.NotificationType)
 	}
 }
+
+func (s *Server) SendPush(ctx context.Context, req *pb.PushRequest) (*pb.NotificationResponse, error) {
+	// Try direct send first
+	resp, err := s.pushService.SendPush(ctx, req)
+	if err == nil {
+		return &pb.NotificationResponse{
+			Success:        true,
+			Message:        "Push notification sent successfully",
+			NotificationId: generateID(),
+			UsedFallback:   false,
+		}, nil
+	}
+
+	// If direct send fails and fallback is enabled
+	if req.UseFallback {
+		s.logger.Warn("Push notification failed, falling back to Kafka", zap.Error(err))
+
+		kafkaReq := &pb.KafkaNotificationRequest{
+			MessageId:        generateID(),
+			Payload:          marshalToBytes(req),
+			CreatedAt:        timestamppb.Now(),
+			NotificationType: "push",
+		}
+
+		if err := s.kafkaProducer.Produce(ctx, "notification-fallback", kafkaReq); err != nil {
+			return nil, status.Errorf(codes.Internal, "both direct send and fallback failed: %v", err)
+		}
+
+		return &pb.NotificationResponse{
+			Success:        true,
+			Message:        "Push notification queued in Kafka for later processing",
+			NotificationId: kafkaReq.MessageId,
+			UsedFallback:   true,
+		}, nil
+	}
+
+	return nil, status.Errorf(codes.Internal, "push notification failed: %v", err)
+}

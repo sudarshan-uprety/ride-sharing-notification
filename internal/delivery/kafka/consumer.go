@@ -2,7 +2,7 @@ package kafka
 
 import (
 	"context"
-	"encoding/json"
+	"ride-sharing-notification/internal/delivery/rpc"
 	"time"
 
 	"github.com/segmentio/kafka-go"
@@ -10,30 +10,21 @@ import (
 )
 
 type Consumer struct {
-	reader      *kafka.Reader
-	logger      *zap.Logger
-	grpcClient  pb.NotificationServiceClient
-	retryPolicy RetryPolicy
+	reader  *kafka.Reader
+	logger  *zap.Logger
+	handler *Handler
 }
 
-type RetryPolicy struct {
-	MaxAttempts int
-	Delay       time.Duration
-}
-
-func NewConsumer(brokers []string, topic string, groupID string, logger *zap.Logger, grpcClient pb.NotificationServiceClient) *Consumer {
+func NewConsumer(brokers []string, topic string, groupID string, logger *zap.Logger, rpcServer *rpc.Server) *Consumer {
 	return &Consumer{
 		reader: kafka.NewReader(kafka.ReaderConfig{
 			Brokers: brokers,
-			Topic:   topic,
 			GroupID: groupID,
+			Topic:   topic,
+			MaxWait: 10 * time.Second,
 		}),
-		logger:     logger,
-		grpcClient: grpcClient,
-		retryPolicy: RetryPolicy{
-			MaxAttempts: 3,
-			Delay:       1 * time.Second,
-		},
+		logger:  logger,
+		handler: NewHandler(rpcServer, logger),
 	}
 }
 
@@ -49,31 +40,17 @@ func (c *Consumer) Run(ctx context.Context) error {
 				continue
 			}
 
-			var kafkaReq pb.KafkaNotificationRequest
-			if err := json.Unmarshal(msg.Value, &kafkaReq); err != nil {
-				c.logger.Error("failed to unmarshal kafka message", zap.Error(err))
+			if err := c.handler.Handle(ctx, msg.Value); err != nil {
+				c.logger.Error("failed to handle message",
+					zap.ByteString("value", msg.Value),
+					zap.Error(err))
 				continue
 			}
 
-			// Process with retry
-			for attempt := 1; attempt <= c.retryPolicy.MaxAttempts; attempt++ {
-				_, err := c.grpcClient.ProcessKafkaNotification(ctx, &kafkaReq)
-				if err == nil {
-					break
-				}
-
-				if attempt == c.retryPolicy.MaxAttempts {
-					c.logger.Error("max retries exceeded for kafka message",
-						zap.String("message_id", kafkaReq.MessageId),
-						zap.Error(err))
-					// TODO: Move to dead letter queue
-				}
-
-				time.Sleep(c.retryPolicy.Delay * time.Duration(attempt))
-			}
-
 			if err := c.reader.CommitMessages(ctx, msg); err != nil {
-				c.logger.Error("failed to commit message", zap.Error(err))
+				c.logger.Error("failed to commit message",
+					zap.ByteString("value", msg.Value),
+					zap.Error(err))
 			}
 		}
 	}
