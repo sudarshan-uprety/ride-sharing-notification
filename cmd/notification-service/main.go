@@ -10,14 +10,12 @@ import (
 
 	"ride-sharing-notification/configs"
 	"ride-sharing-notification/internal/delivery/kafka"
+	"ride-sharing-notification/internal/delivery/rpc"
 	"ride-sharing-notification/internal/pkg/email"
 	"ride-sharing-notification/internal/pkg/firebase"
 	"ride-sharing-notification/internal/pkg/logger"
 
-	"ride-sharing-notification/internal/delivery/grpc"
-
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
 )
 
 func main() {
@@ -46,7 +44,7 @@ func main() {
 	defer kafkaProducer.Close()
 
 	// Initialize gRPC server
-	grpcServer := grpc.NewServer(kafkaProducer, zapLogger, emailSvc, pushSvc)
+	grpcServer := rpc.NewServer(kafkaProducer, zapLogger, emailSvc, pushSvc)
 
 	// Initialize Kafka consumer
 	kafkaConsumer := kafka.NewConsumer(
