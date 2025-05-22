@@ -11,19 +11,6 @@ import (
 )
 
 type Config struct {
-	DB struct {
-		Host     string
-		Port     string
-		User     string
-		Password string
-		Name     string
-	}
-	Redis struct {
-		Host     string
-		Port     string
-		Password string
-		DB       int
-	}
 	Server struct {
 		Port        string
 		Environment string
