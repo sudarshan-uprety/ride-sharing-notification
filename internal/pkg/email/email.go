@@ -4,25 +4,23 @@ import (
 	"context"
 	"fmt"
 	"net/smtp"
-	"ride-sharing-notification/configs"
+	"ride-sharing-notification/config"
 
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
-// Service implements the EmailServiceClient interface
 type Service struct {
-	config *configs.EmailConfig
+	config *config.Config
 	logger *zap.Logger
 	auth   smtp.Auth
 }
 
-// NewService creates a new email service with Zoho Mail configuration
-func NewService(cfg *configs.EmailConfig) *Service {
-	// Set up SMTP authentication for Zoho Mail
+func NewService(cfg *config.Config) *Service {
 	auth := smtp.PlainAuth(
 		"",
-		cfg.Username, // Your Zoho Mail email address
-		cfg.Password, // Your Zoho Mail password or app-specific password
+		cfg.Email.Username,
+		cfg.Email.Password,
 		"smtp.zoho.com",
 	)
 
@@ -32,17 +30,14 @@ func NewService(cfg *configs.EmailConfig) *Service {
 	}
 }
 
-// SetLogger sets the logger for the email service
 func (s *Service) SetLogger(logger *zap.Logger) {
 	s.logger = logger
 }
 
-// SendEmail sends an email using Zoho Mail SMTP
 func (s *Service) SendEmail(ctx context.Context, req *EmailRequest) (*NotificationResponse, error) {
-	// Construct the email message
-	from := s.config.FromEmail
+	from := s.config.Email.FromEmail
 	if from == "" {
-		from = s.config.Username // Fallback to username if from email not specified
+		from = s.config.Email.Username
 	}
 
 	message := fmt.Sprintf(
@@ -57,9 +52,8 @@ func (s *Service) SendEmail(ctx context.Context, req *EmailRequest) (*Notificati
 		req.Body,
 	)
 
-	// Send the email using Zoho's SMTP server
 	err := smtp.SendMail(
-		"smtp.zoho.com:587", // Zoho Mail SMTP server with TLS
+		"smtp.zoho.com:587",
 		s.auth,
 		from,
 		[]string{req.To},
@@ -86,4 +80,15 @@ func (s *Service) SendEmail(ctx context.Context, req *EmailRequest) (*Notificati
 
 	return &NotificationResponse{
 		Success:        true,
-		Message:        "Email sent
+		Message:        "Email sent successfully",
+		NotificationId: generateID(),
+		UsedFallback:   false,
+	}, nil
+}
+
+// generateID generates a unique ID for the notification
+func generateID() string {
+	// Implement your ID generation logic here
+	// This is a simple placeholder implementation
+	return uuid.New().String()
+}
