@@ -2,12 +2,21 @@ package email
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/smtp"
 	"ride-sharing-notification/config"
+	"ride-sharing-notification/internal/delivery/rpc"
+	"time"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+)
+
+const (
+	maxRetries      = 3
+	retryDelay      = 1 * time.Second
+	timeoutDuration = 10 * time.Second
 )
 
 type Service struct {
@@ -21,7 +30,7 @@ func NewService(cfg *config.Config) *Service {
 		"",
 		cfg.Email.Username,
 		cfg.Email.Password,
-		"smtp.zoho.com",
+		cfg.Email.SMTPHost,
 	)
 
 	return &Service{
@@ -34,7 +43,19 @@ func (s *Service) SetLogger(logger *zap.Logger) {
 	s.logger = logger
 }
 
-func (s *Service) SendEmail(ctx context.Context, req *EmailRequest) (*NotificationResponse, error) {
+func (s *Service) SendEmail(ctx context.Context, req *rpc.EmailRequest) (*rpc.NotificationResponse, error) {
+	if req == nil {
+		return nil, errors.New("email request cannot be nil")
+	}
+
+	// Validate email fields
+	if req.To == "" {
+		return nil, errors.New("recipient email cannot be empty")
+	}
+	if req.Subject == "" || req.Body == "" {
+		return nil, errors.New("email subject and body cannot be empty")
+	}
+
 	from := s.config.Email.FromEmail
 	if from == "" {
 		from = s.config.Email.Username
@@ -44,6 +65,8 @@ func (s *Service) SendEmail(ctx context.Context, req *EmailRequest) (*Notificati
 		"From: %s\r\n"+
 			"To: %s\r\n"+
 			"Subject: %s\r\n"+
+			"MIME-version: 1.0;\r\n"+
+			"Content-Type: text/html; charset=\"UTF-8\";\r\n"+
 			"\r\n"+
 			"%s\r\n",
 		from,
@@ -52,43 +75,70 @@ func (s *Service) SendEmail(ctx context.Context, req *EmailRequest) (*Notificati
 		req.Body,
 	)
 
-	err := smtp.SendMail(
-		"smtp.zoho.com:587",
-		s.auth,
-		from,
-		[]string{req.To},
-		[]byte(message),
-	)
+	var lastErr error
 
-	if err != nil {
+	// Retry logic
+	for attempt := 1; attempt <= maxRetries; attempt++ {
+		ctx, cancel := context.WithTimeout(ctx, timeoutDuration)
+		defer cancel()
+
+		err := s.sendEmail(ctx, from, req.To, []byte(message))
+		if err == nil {
+			// Success
+			if s.logger != nil {
+				s.logger.Info("Email sent successfully via Zoho Mail",
+					zap.String("to", req.To),
+					zap.String("subject", req.Subject),
+					zap.Int("attempt", attempt),
+				)
+			}
+
+			return &rpc.NotificationResponse{
+				Success:        true,
+				Message:        "Email sent successfully",
+				NotificationId: generateID(),
+			}, nil
+		}
+
+		lastErr = err
 		if s.logger != nil {
 			s.logger.Error("Failed to send email via Zoho Mail",
 				zap.String("to", req.To),
 				zap.String("subject", req.Subject),
+				zap.Int("attempt", attempt),
 				zap.Error(err),
 			)
 		}
-		return nil, err
+
+		if attempt < maxRetries {
+			time.Sleep(retryDelay)
+		}
 	}
 
-	if s.logger != nil {
-		s.logger.Info("Email sent successfully via Zoho Mail",
-			zap.String("to", req.To),
-			zap.String("subject", req.Subject),
-		)
-	}
-
-	return &NotificationResponse{
-		Success:        true,
-		Message:        "Email sent successfully",
-		NotificationId: generateID(),
-		UsedFallback:   false,
-	}, nil
+	return nil, fmt.Errorf("after %d attempts, last error: %w", maxRetries, lastErr)
 }
 
-// generateID generates a unique ID for the notification
+func (s *Service) sendEmail(ctx context.Context, from, to string, message []byte) error {
+	done := make(chan error, 1)
+
+	go func() {
+		done <- smtp.SendMail(
+			s.config.Email.SMTPHost+":"+s.config.Email.SMTPPort,
+			s.auth,
+			from,
+			[]string{to},
+			message,
+		)
+	}()
+
+	select {
+	case err := <-done:
+		return err
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+}
+
 func generateID() string {
-	// Implement your ID generation logic here
-	// This is a simple placeholder implementation
 	return uuid.New().String()
 }

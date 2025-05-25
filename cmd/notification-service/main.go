@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"ride-sharing-notification/config"
+	"ride-sharing-notification/internal/delivery/rpc"
+	"ride-sharing-notification/internal/pkg/email"
 	"ride-sharing-notification/internal/pkg/logging"
 )
 
@@ -18,13 +20,8 @@ func main() {
 		Version:     cfg.Log.Version,
 		ServiceName: cfg.Log.ServiceName,
 	})
+	emailSvc := email.NewService(cfg)
+	// pushSvc, err := firebase.NewService(cfg)
 
-	// Initialize services
-	// emailSvc := email.NewService(cfg.Email)
-	// pushSvc := firebase.NewService(cfg.Firebase)
-
-	// Graceful shutdown
-	// quit := make(chan os.Signal, 1)
-	// signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-
+	grpcServer := rpc.NewServer(emailSvc, rpc.EmailServiceClient)
 }

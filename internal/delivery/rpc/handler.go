@@ -2,17 +2,9 @@ package rpc
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 
 	"google.golang.org/protobuf/proto"
 )
-
-func generateID() string {
-	b := make([]byte, 16)
-	_, _ = rand.Read(b)
-	return hex.EncodeToString(b)
-}
 
 func marshalToBytes(msg proto.Message) []byte {
 	b, _ := proto.Marshal(msg)
