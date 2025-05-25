@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -27,18 +26,26 @@ func main() {
 		ServiceName: cfg.Log.ServiceName,
 	})
 	emailSvc := email.NewService(cfg)
-	// pushSvc, err := firebase.NewService(cfg)
-
+	// Create gRPC server
 	grpcServer := rpc.NewServer(emailSvc)
+
+	// Start server in a goroutine
 	go func() {
-		if err := grpcServer.Start(cfg.Server.Port); err != nil {
-			fmt.Println("error occured", err.Error())
+		if err := grpcServer.Start(cfg.GRPC.Port); err != nil {
 		}
 	}()
+
+	// Wait for interrupt signal
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	// Block until we receive a signal
+	<-quit
+
+	// Create shutdown context with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	grpcServer.Stop(ctx)
 
+	// Gracefully stop the server
+	grpcServer.Stop(ctx)
 }
