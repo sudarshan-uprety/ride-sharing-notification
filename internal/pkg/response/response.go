@@ -1,6 +1,8 @@
 package response
 
 import (
+	"ride-sharing-notification/internal/delivery/rpc"
+
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
@@ -33,8 +35,8 @@ func (rb *ResponseBuilder) WithMessage(msg string) *ResponseBuilder {
 	return rb
 }
 
-func (rb *ResponseBuilder) WithData(payload proto.Message, meta *MetaData) (*StandardResponse, error) {
-	data := &DataResponse{}
+func (rb *ResponseBuilder) WithData(payload proto.Message, meta *rpc.MetaData) (*rpc.StandardResponse, error) {
+	data := &rpc.DataResponse{}
 
 	if payload != nil {
 		anyPayload, err := anypb.New(payload)
@@ -48,21 +50,21 @@ func (rb *ResponseBuilder) WithData(payload proto.Message, meta *MetaData) (*Sta
 		data.Meta = meta
 	}
 
-	return &StandardResponse{
+	return &rpc.StandardResponse{
 		Success: rb.success,
 		Message: rb.message,
-		Content: &StandardResponse_Data{
+		Content: &rpc.StandardResponse_Data{
 			Data: data,
 		},
 	}, nil
 }
 
-func (rb *ResponseBuilder) WithErrorDetails(errorCode string, details map[string]string) (*StandardResponse, error) {
-	return &StandardResponse{
+func (rb *ResponseBuilder) WithErrorDetails(errorCode string, details map[string]string) (*rpc.StandardResponse, error) {
+	return &rpc.StandardResponse{
 		Success: false,
 		Message: rb.message,
-		Content: &StandardResponse_Error{
-			Error: &ErrorResponse{
+		Content: &rpc.StandardResponse_Error{
+			Error: &rpc.ErrorResponse{
 				ErrorCode:    errorCode,
 				ErrorMessage: rb.message,
 				Details:      details,
