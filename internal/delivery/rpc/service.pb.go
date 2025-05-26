@@ -21,6 +21,276 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type StandardResponse struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Success bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	// Types that are valid to be assigned to Content:
+	//
+	//	*StandardResponse_Data
+	//	*StandardResponse_Error
+	Content       isStandardResponse_Content `protobuf_oneof:"content"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StandardResponse) Reset() {
+	*x = StandardResponse{}
+	mi := &file_service_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StandardResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StandardResponse) ProtoMessage() {}
+
+func (x *StandardResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StandardResponse.ProtoReflect.Descriptor instead.
+func (*StandardResponse) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *StandardResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *StandardResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *StandardResponse) GetContent() isStandardResponse_Content {
+	if x != nil {
+		return x.Content
+	}
+	return nil
+}
+
+func (x *StandardResponse) GetData() *DataResponse {
+	if x != nil {
+		if x, ok := x.Content.(*StandardResponse_Data); ok {
+			return x.Data
+		}
+	}
+	return nil
+}
+
+func (x *StandardResponse) GetError() *ErrorResponse {
+	if x != nil {
+		if x, ok := x.Content.(*StandardResponse_Error); ok {
+			return x.Error
+		}
+	}
+	return nil
+}
+
+type isStandardResponse_Content interface {
+	isStandardResponse_Content()
+}
+
+type StandardResponse_Data struct {
+	Data *DataResponse `protobuf:"bytes,3,opt,name=data,proto3,oneof"`
+}
+
+type StandardResponse_Error struct {
+	Error *ErrorResponse `protobuf:"bytes,4,opt,name=error,proto3,oneof"`
+}
+
+func (*StandardResponse_Data) isStandardResponse_Content() {}
+
+func (*StandardResponse_Error) isStandardResponse_Content() {}
+
+type DataResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Payload       []byte                 `protobuf:"bytes,1,opt,name=payload,proto3" json:"payload,omitempty"`
+	Meta          *MetaData              `protobuf:"bytes,2,opt,name=meta,proto3" json:"meta,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DataResponse) Reset() {
+	*x = DataResponse{}
+	mi := &file_service_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DataResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DataResponse) ProtoMessage() {}
+
+func (x *DataResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DataResponse.ProtoReflect.Descriptor instead.
+func (*DataResponse) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *DataResponse) GetPayload() []byte {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+func (x *DataResponse) GetMeta() *MetaData {
+	if x != nil {
+		return x.Meta
+	}
+	return nil
+}
+
+type ErrorResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ErrorCode     string                 `protobuf:"bytes,1,opt,name=error_code,json=errorCode,proto3" json:"error_code,omitempty"`
+	ErrorMessage  string                 `protobuf:"bytes,2,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	Details       map[string]string      `protobuf:"bytes,3,rep,name=details,proto3" json:"details,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ErrorResponse) Reset() {
+	*x = ErrorResponse{}
+	mi := &file_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ErrorResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ErrorResponse) ProtoMessage() {}
+
+func (x *ErrorResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ErrorResponse.ProtoReflect.Descriptor instead.
+func (*ErrorResponse) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ErrorResponse) GetErrorCode() string {
+	if x != nil {
+		return x.ErrorCode
+	}
+	return ""
+}
+
+func (x *ErrorResponse) GetErrorMessage() string {
+	if x != nil {
+		return x.ErrorMessage
+	}
+	return ""
+}
+
+func (x *ErrorResponse) GetDetails() map[string]string {
+	if x != nil {
+		return x.Details
+	}
+	return nil
+}
+
+type MetaData struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Page          int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
+	PerPage       int32                  `protobuf:"varint,2,opt,name=per_page,json=perPage,proto3" json:"per_page,omitempty"`
+	Total         int32                  `protobuf:"varint,3,opt,name=total,proto3" json:"total,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MetaData) Reset() {
+	*x = MetaData{}
+	mi := &file_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MetaData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MetaData) ProtoMessage() {}
+
+func (x *MetaData) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MetaData.ProtoReflect.Descriptor instead.
+func (*MetaData) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *MetaData) GetPage() int32 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *MetaData) GetPerPage() int32 {
+	if x != nil {
+		return x.PerPage
+	}
+	return 0
+}
+
+func (x *MetaData) GetTotal() int32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
 type EmailRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	To            string                 `protobuf:"bytes,1,opt,name=to,proto3" json:"to,omitempty"`
@@ -32,7 +302,7 @@ type EmailRequest struct {
 
 func (x *EmailRequest) Reset() {
 	*x = EmailRequest{}
-	mi := &file_service_proto_msgTypes[0]
+	mi := &file_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -44,7 +314,7 @@ func (x *EmailRequest) String() string {
 func (*EmailRequest) ProtoMessage() {}
 
 func (x *EmailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[0]
+	mi := &file_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -57,7 +327,7 @@ func (x *EmailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EmailRequest.ProtoReflect.Descriptor instead.
 func (*EmailRequest) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{0}
+	return file_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *EmailRequest) GetTo() string {
@@ -93,7 +363,7 @@ type PushRequest struct {
 
 func (x *PushRequest) Reset() {
 	*x = PushRequest{}
-	mi := &file_service_proto_msgTypes[1]
+	mi := &file_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -105,7 +375,7 @@ func (x *PushRequest) String() string {
 func (*PushRequest) ProtoMessage() {}
 
 func (x *PushRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[1]
+	mi := &file_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -118,7 +388,7 @@ func (x *PushRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PushRequest.ProtoReflect.Descriptor instead.
 func (*PushRequest) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{1}
+	return file_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *PushRequest) GetDeviceToken() string {
@@ -160,7 +430,7 @@ type NotificationResponse struct {
 
 func (x *NotificationResponse) Reset() {
 	*x = NotificationResponse{}
-	mi := &file_service_proto_msgTypes[2]
+	mi := &file_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -172,7 +442,7 @@ func (x *NotificationResponse) String() string {
 func (*NotificationResponse) ProtoMessage() {}
 
 func (x *NotificationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[2]
+	mi := &file_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -185,7 +455,7 @@ func (x *NotificationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationResponse.ProtoReflect.Descriptor instead.
 func (*NotificationResponse) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{2}
+	return file_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *NotificationResponse) GetSuccess() bool {
@@ -213,7 +483,28 @@ var File_service_proto protoreflect.FileDescriptor
 
 const file_service_proto_rawDesc = "" +
 	"\n" +
-	"\rservice.proto\x12\fnotification\"L\n" +
+	"\rservice.proto\x12\fnotification\"\xb8\x01\n" +
+	"\x10StandardResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x120\n" +
+	"\x04data\x18\x03 \x01(\v2\x1a.notification.DataResponseH\x00R\x04data\x123\n" +
+	"\x05error\x18\x04 \x01(\v2\x1b.notification.ErrorResponseH\x00R\x05errorB\t\n" +
+	"\acontent\"T\n" +
+	"\fDataResponse\x12\x18\n" +
+	"\apayload\x18\x01 \x01(\fR\apayload\x12*\n" +
+	"\x04meta\x18\x02 \x01(\v2\x16.notification.MetaDataR\x04meta\"\xd3\x01\n" +
+	"\rErrorResponse\x12\x1d\n" +
+	"\n" +
+	"error_code\x18\x01 \x01(\tR\terrorCode\x12#\n" +
+	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\x12B\n" +
+	"\adetails\x18\x03 \x03(\v2(.notification.ErrorResponse.DetailsEntryR\adetails\x1a:\n" +
+	"\fDetailsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"O\n" +
+	"\bMetaData\x12\x12\n" +
+	"\x04page\x18\x01 \x01(\x05R\x04page\x12\x19\n" +
+	"\bper_page\x18\x02 \x01(\x05R\aperPage\x12\x14\n" +
+	"\x05total\x18\x03 \x01(\x05R\x05total\"L\n" +
 	"\fEmailRequest\x12\x0e\n" +
 	"\x02to\x18\x01 \x01(\tR\x02to\x12\x18\n" +
 	"\asubject\x18\x02 \x01(\tR\asubject\x12\x12\n" +
@@ -229,10 +520,7 @@ const file_service_proto_rawDesc = "" +
 	"\x14NotificationResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12'\n" +
-	"\x0fnotification_id\x18\x03 \x01(\tR\x0enotificationId2\xad\x01\n" +
-	"\x13NotificationService\x12K\n" +
-	"\tSendEmail\x12\x1a.notification.EmailRequest\x1a\".notification.NotificationResponse\x12I\n" +
-	"\bSendPush\x12\x19.notification.PushRequest\x1a\".notification.NotificationResponseB1Z/ride-sharing-notification/internal/delivery/rpcb\x06proto3"
+	"\x0fnotification_id\x18\x03 \x01(\tR\x0enotificationIdB1Z/ride-sharing-notification/internal/delivery/rpcb\x06proto3"
 
 var (
 	file_service_proto_rawDescOnce sync.Once
@@ -246,24 +534,29 @@ func file_service_proto_rawDescGZIP() []byte {
 	return file_service_proto_rawDescData
 }
 
-var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_service_proto_goTypes = []any{
-	(*EmailRequest)(nil),         // 0: notification.EmailRequest
-	(*PushRequest)(nil),          // 1: notification.PushRequest
-	(*NotificationResponse)(nil), // 2: notification.NotificationResponse
-	nil,                          // 3: notification.PushRequest.DataEntry
+	(*StandardResponse)(nil),     // 0: notification.StandardResponse
+	(*DataResponse)(nil),         // 1: notification.DataResponse
+	(*ErrorResponse)(nil),        // 2: notification.ErrorResponse
+	(*MetaData)(nil),             // 3: notification.MetaData
+	(*EmailRequest)(nil),         // 4: notification.EmailRequest
+	(*PushRequest)(nil),          // 5: notification.PushRequest
+	(*NotificationResponse)(nil), // 6: notification.NotificationResponse
+	nil,                          // 7: notification.ErrorResponse.DetailsEntry
+	nil,                          // 8: notification.PushRequest.DataEntry
 }
 var file_service_proto_depIdxs = []int32{
-	3, // 0: notification.PushRequest.data:type_name -> notification.PushRequest.DataEntry
-	0, // 1: notification.NotificationService.SendEmail:input_type -> notification.EmailRequest
-	1, // 2: notification.NotificationService.SendPush:input_type -> notification.PushRequest
-	2, // 3: notification.NotificationService.SendEmail:output_type -> notification.NotificationResponse
-	2, // 4: notification.NotificationService.SendPush:output_type -> notification.NotificationResponse
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	1, // 0: notification.StandardResponse.data:type_name -> notification.DataResponse
+	2, // 1: notification.StandardResponse.error:type_name -> notification.ErrorResponse
+	3, // 2: notification.DataResponse.meta:type_name -> notification.MetaData
+	7, // 3: notification.ErrorResponse.details:type_name -> notification.ErrorResponse.DetailsEntry
+	8, // 4: notification.PushRequest.data:type_name -> notification.PushRequest.DataEntry
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_service_proto_init() }
@@ -271,15 +564,19 @@ func file_service_proto_init() {
 	if File_service_proto != nil {
 		return
 	}
+	file_service_proto_msgTypes[0].OneofWrappers = []any{
+		(*StandardResponse_Data)(nil),
+		(*StandardResponse_Error)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_service_proto_rawDesc), len(file_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   9,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   0,
 		},
 		GoTypes:           file_service_proto_goTypes,
 		DependencyIndexes: file_service_proto_depIdxs,
