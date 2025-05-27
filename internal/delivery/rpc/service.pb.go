@@ -9,6 +9,7 @@ package rpc
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	anypb "google.golang.org/protobuf/types/known/anypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -121,7 +122,7 @@ func (*StandardResponse_Error) isStandardResponse_Content() {}
 
 type DataResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Payload       []byte                 `protobuf:"bytes,1,opt,name=payload,proto3" json:"payload,omitempty"`
+	Payload       *anypb.Any             `protobuf:"bytes,1,opt,name=payload,proto3" json:"payload,omitempty"`
 	Meta          *MetaData              `protobuf:"bytes,2,opt,name=meta,proto3" json:"meta,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -157,7 +158,7 @@ func (*DataResponse) Descriptor() ([]byte, []int) {
 	return file_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *DataResponse) GetPayload() []byte {
+func (x *DataResponse) GetPayload() *anypb.Any {
 	if x != nil {
 		return x.Payload
 	}
@@ -483,15 +484,15 @@ var File_service_proto protoreflect.FileDescriptor
 
 const file_service_proto_rawDesc = "" +
 	"\n" +
-	"\rservice.proto\x12\fnotification\"\xb8\x01\n" +
+	"\rservice.proto\x12\fnotification\x1a\x19google/protobuf/any.proto\"\xb8\x01\n" +
 	"\x10StandardResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x120\n" +
 	"\x04data\x18\x03 \x01(\v2\x1a.notification.DataResponseH\x00R\x04data\x123\n" +
 	"\x05error\x18\x04 \x01(\v2\x1b.notification.ErrorResponseH\x00R\x05errorB\t\n" +
-	"\acontent\"T\n" +
-	"\fDataResponse\x12\x18\n" +
-	"\apayload\x18\x01 \x01(\fR\apayload\x12*\n" +
+	"\acontent\"j\n" +
+	"\fDataResponse\x12.\n" +
+	"\apayload\x18\x01 \x01(\v2\x14.google.protobuf.AnyR\apayload\x12*\n" +
 	"\x04meta\x18\x02 \x01(\v2\x16.notification.MetaDataR\x04meta\"\xd3\x01\n" +
 	"\rErrorResponse\x12\x1d\n" +
 	"\n" +
@@ -545,18 +546,20 @@ var file_service_proto_goTypes = []any{
 	(*NotificationResponse)(nil), // 6: notification.NotificationResponse
 	nil,                          // 7: notification.ErrorResponse.DetailsEntry
 	nil,                          // 8: notification.PushRequest.DataEntry
+	(*anypb.Any)(nil),            // 9: google.protobuf.Any
 }
 var file_service_proto_depIdxs = []int32{
 	1, // 0: notification.StandardResponse.data:type_name -> notification.DataResponse
 	2, // 1: notification.StandardResponse.error:type_name -> notification.ErrorResponse
-	3, // 2: notification.DataResponse.meta:type_name -> notification.MetaData
-	7, // 3: notification.ErrorResponse.details:type_name -> notification.ErrorResponse.DetailsEntry
-	8, // 4: notification.PushRequest.data:type_name -> notification.PushRequest.DataEntry
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	9, // 2: notification.DataResponse.payload:type_name -> google.protobuf.Any
+	3, // 3: notification.DataResponse.meta:type_name -> notification.MetaData
+	7, // 4: notification.ErrorResponse.details:type_name -> notification.ErrorResponse.DetailsEntry
+	8, // 5: notification.PushRequest.data:type_name -> notification.PushRequest.DataEntry
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_service_proto_init() }
