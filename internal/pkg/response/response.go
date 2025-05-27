@@ -35,6 +35,7 @@ func (rb *ResponseBuilder) WithMessage(msg string) *ResponseBuilder {
 	return rb
 }
 
+// WithData builds a successful response with payload and metadata
 func (rb *ResponseBuilder) WithData(payload proto.Message, meta *rpc.MetaData) (*rpc.StandardResponse, error) {
 	data := &rpc.DataResponse{}
 
@@ -51,7 +52,7 @@ func (rb *ResponseBuilder) WithData(payload proto.Message, meta *rpc.MetaData) (
 	}
 
 	return &rpc.StandardResponse{
-		Success: rb.success,
+		Success: true, // Force success true for data responses
 		Message: rb.message,
 		Content: &rpc.StandardResponse_Data{
 			Data: data,
@@ -59,7 +60,8 @@ func (rb *ResponseBuilder) WithData(payload proto.Message, meta *rpc.MetaData) (
 	}, nil
 }
 
-func (rb *ResponseBuilder) WithErrorDetails(errorCode string, details map[string]string) (*rpc.StandardResponse, error) {
+// WithError builds an error response with error details
+func (rb *ResponseBuilder) WithError(errorCode string, details map[string]string) *rpc.StandardResponse {
 	return &rpc.StandardResponse{
 		Success: false,
 		Message: rb.message,
@@ -70,9 +72,23 @@ func (rb *ResponseBuilder) WithErrorDetails(errorCode string, details map[string
 				Details:      details,
 			},
 		},
-	}, nil
+	}
 }
 
+// BuildStatusError creates a gRPC status error
 func (rb *ResponseBuilder) BuildStatusError() error {
 	return status.Error(rb.code, rb.message)
+}
+
+// SimpleSuccess creates a simple success response without data
+func (rb *ResponseBuilder) SimpleSuccess() *rpc.StandardResponse {
+	return &rpc.StandardResponse{
+		Success: true,
+		Message: rb.message,
+	}
+}
+
+// SimpleError creates a simple error response without details
+func (rb *ResponseBuilder) SimpleError(errorCode string) *rpc.StandardResponse {
+	return rb.WithError(errorCode, nil)
 }
