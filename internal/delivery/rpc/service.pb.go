@@ -420,66 +420,6 @@ func (x *PushRequest) GetData() map[string]string {
 	return nil
 }
 
-type NotificationResponse struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Success        bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	Message        string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
-	NotificationId string                 `protobuf:"bytes,3,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *NotificationResponse) Reset() {
-	*x = NotificationResponse{}
-	mi := &file_service_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *NotificationResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*NotificationResponse) ProtoMessage() {}
-
-func (x *NotificationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use NotificationResponse.ProtoReflect.Descriptor instead.
-func (*NotificationResponse) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *NotificationResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-func (x *NotificationResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
-func (x *NotificationResponse) GetNotificationId() string {
-	if x != nil {
-		return x.NotificationId
-	}
-	return ""
-}
-
 var File_service_proto protoreflect.FileDescriptor
 
 const file_service_proto_rawDesc = "" +
@@ -517,11 +457,7 @@ const file_service_proto_rawDesc = "" +
 	"\x04data\x18\x04 \x03(\v2#.notification.PushRequest.DataEntryR\x04data\x1a7\n" +
 	"\tDataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"s\n" +
-	"\x14NotificationResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\x12'\n" +
-	"\x0fnotification_id\x18\x03 \x01(\tR\x0enotificationIdB1Z/ride-sharing-notification/internal/delivery/rpcb\x06proto3"
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B1Z/ride-sharing-notification/internal/delivery/rpcb\x06proto3"
 
 var (
 	file_service_proto_rawDescOnce sync.Once
@@ -535,26 +471,25 @@ func file_service_proto_rawDescGZIP() []byte {
 	return file_service_proto_rawDescData
 }
 
-var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_service_proto_goTypes = []any{
-	(*StandardResponse)(nil),     // 0: notification.StandardResponse
-	(*DataResponse)(nil),         // 1: notification.DataResponse
-	(*ErrorResponse)(nil),        // 2: notification.ErrorResponse
-	(*MetaData)(nil),             // 3: notification.MetaData
-	(*EmailRequest)(nil),         // 4: notification.EmailRequest
-	(*PushRequest)(nil),          // 5: notification.PushRequest
-	(*NotificationResponse)(nil), // 6: notification.NotificationResponse
-	nil,                          // 7: notification.ErrorResponse.DetailsEntry
-	nil,                          // 8: notification.PushRequest.DataEntry
-	(*anypb.Any)(nil),            // 9: google.protobuf.Any
+	(*StandardResponse)(nil), // 0: notification.StandardResponse
+	(*DataResponse)(nil),     // 1: notification.DataResponse
+	(*ErrorResponse)(nil),    // 2: notification.ErrorResponse
+	(*MetaData)(nil),         // 3: notification.MetaData
+	(*EmailRequest)(nil),     // 4: notification.EmailRequest
+	(*PushRequest)(nil),      // 5: notification.PushRequest
+	nil,                      // 6: notification.ErrorResponse.DetailsEntry
+	nil,                      // 7: notification.PushRequest.DataEntry
+	(*anypb.Any)(nil),        // 8: google.protobuf.Any
 }
 var file_service_proto_depIdxs = []int32{
 	1, // 0: notification.StandardResponse.data:type_name -> notification.DataResponse
 	2, // 1: notification.StandardResponse.error:type_name -> notification.ErrorResponse
-	9, // 2: notification.DataResponse.payload:type_name -> google.protobuf.Any
+	8, // 2: notification.DataResponse.payload:type_name -> google.protobuf.Any
 	3, // 3: notification.DataResponse.meta:type_name -> notification.MetaData
-	7, // 4: notification.ErrorResponse.details:type_name -> notification.ErrorResponse.DetailsEntry
-	8, // 5: notification.PushRequest.data:type_name -> notification.PushRequest.DataEntry
+	6, // 4: notification.ErrorResponse.details:type_name -> notification.ErrorResponse.DetailsEntry
+	7, // 5: notification.PushRequest.data:type_name -> notification.PushRequest.DataEntry
 	6, // [6:6] is the sub-list for method output_type
 	6, // [6:6] is the sub-list for method input_type
 	6, // [6:6] is the sub-list for extension type_name
@@ -577,7 +512,7 @@ func file_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_service_proto_rawDesc), len(file_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

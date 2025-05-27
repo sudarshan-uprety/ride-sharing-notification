@@ -1,7 +1,7 @@
 package response
 
 import (
-	"ride-sharing-notification/internal/delivery/rpc"
+	"ride-sharing-notification/internal/proto/notification"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -35,9 +35,8 @@ func (rb *ResponseBuilder) WithMessage(msg string) *ResponseBuilder {
 	return rb
 }
 
-// WithData builds a successful response with payload and metadata
-func (rb *ResponseBuilder) WithData(payload proto.Message, meta *rpc.MetaData) (*rpc.StandardResponse, error) {
-	data := &rpc.DataResponse{}
+func (rb *ResponseBuilder) WithData(payload proto.Message, meta *notification.MetaData) (*notification.StandardResponse, error) {
+	data := &notification.DataResponse{}
 
 	if payload != nil {
 		anyPayload, err := anypb.New(payload)
@@ -51,22 +50,21 @@ func (rb *ResponseBuilder) WithData(payload proto.Message, meta *rpc.MetaData) (
 		data.Meta = meta
 	}
 
-	return &rpc.StandardResponse{
-		Success: true, // Force success true for data responses
+	return &notification.StandardResponse{
+		Success: true,
 		Message: rb.message,
-		Content: &rpc.StandardResponse_Data{
+		Content: &notification.StandardResponse_Data{
 			Data: data,
 		},
 	}, nil
 }
 
-// WithError builds an error response with error details
-func (rb *ResponseBuilder) WithError(errorCode string, details map[string]string) *rpc.StandardResponse {
-	return &rpc.StandardResponse{
+func (rb *ResponseBuilder) WithError(errorCode string, details map[string]string) *notification.StandardResponse {
+	return &notification.StandardResponse{
 		Success: false,
 		Message: rb.message,
-		Content: &rpc.StandardResponse_Error{
-			Error: &rpc.ErrorResponse{
+		Content: &notification.StandardResponse_Error{
+			Error: &notification.ErrorResponse{
 				ErrorCode:    errorCode,
 				ErrorMessage: rb.message,
 				Details:      details,
@@ -75,20 +73,17 @@ func (rb *ResponseBuilder) WithError(errorCode string, details map[string]string
 	}
 }
 
-// BuildStatusError creates a gRPC status error
 func (rb *ResponseBuilder) BuildStatusError() error {
 	return status.Error(rb.code, rb.message)
 }
 
-// SimpleSuccess creates a simple success response without data
-func (rb *ResponseBuilder) SimpleSuccess() *rpc.StandardResponse {
-	return &rpc.StandardResponse{
+func (rb *ResponseBuilder) SimpleSuccess() *notification.StandardResponse {
+	return &notification.StandardResponse{
 		Success: true,
 		Message: rb.message,
 	}
 }
 
-// SimpleError creates a simple error response without details
-func (rb *ResponseBuilder) SimpleError(errorCode string) *rpc.StandardResponse {
+func (rb *ResponseBuilder) SimpleError(errorCode string) *notification.StandardResponse {
 	return rb.WithError(errorCode, nil)
 }

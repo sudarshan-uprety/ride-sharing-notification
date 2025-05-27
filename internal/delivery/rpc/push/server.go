@@ -4,9 +4,9 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"net"
 	"ride-sharing-notification/internal/pkg/logging"
-	"ride-sharing-notification/internal/pkg/response"
 	"time"
 
 	"go.uber.org/zap"
@@ -14,7 +14,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	anypb "google.golang.org/protobuf/types/known/anypb"
 )
 
 type Server struct {
@@ -26,13 +25,12 @@ type Server struct {
 
 func NewServer(
 	emailService EmailServiceClient,
-	pushService PushServiceClient,
 ) *Server {
 	return &Server{
 		emailService: emailService,
-		pushService:  pushService,
 	}
 }
+
 func (s *Server) Start(port string) error {
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
@@ -71,94 +69,38 @@ func (s *Server) Stop(ctx context.Context) {
 	}
 }
 
-func (s *Server) SendEmail(ctx context.Context, req *EmailRequest) (*StandardResponse, error) {
+func (s *Server) SendEmail(ctx context.Context, req *EmailRequest) (*NotificationResponse, error) {
 	if req == nil {
-		return response.New().
-			Error(codes.InvalidArgument).
-			WithMessage("request cannot be nil").
-			SimpleError("INVALID_REQUEST"), nil
+		return nil, errors.New("request cannot be nil")
 	}
 
-	// Call the email service
 	_, err := s.emailService.SendEmail(ctx, req)
 	if err != nil {
-		// Convert the error to a standard error response
-		st, ok := status.FromError(err)
-		if !ok {
-			st = status.New(codes.Internal, err.Error())
-		}
-
-		return response.New().
-			Error(st.Code()).
-			WithMessage(st.Message()).
-			WithError("EMAIL_SEND_FAILED", nil), nil
+		return nil, err
 	}
 
-	// Create success response with the notification data
-	notificationResp := &StandardResponse{
+	return &NotificationResponse{
 		Success:        true,
 		Message:        "Email sent successfully",
 		NotificationId: generateID(),
-	}
-
-	// Convert to Any type
-	anyPayload, err := anypb.New(notificationResp)
-	if err != nil {
-		return response.New().
-			Error(codes.Internal).
-			WithMessage("failed to create response").
-			WithError("INTERNAL_ERROR", nil), nil
-	}
-
-	return response.New().
-		Success().
-		WithMessage("Email sent successfully").
-		WithData(anyPayload, nil)
+	}, nil
 }
 
-func (s *Server) SendPush(ctx context.Context, req *PushRequest) (*StandardResponse, error) {
+func (s *Server) SendPush(ctx context.Context, req *PushRequest) (*NotificationResponse, error) {
 	if req == nil {
-		return response.New().
-			Error(codes.InvalidArgument).
-			WithMessage("request cannot be nil").
-			SimpleError("INVALID_REQUEST"), nil
+		return nil, errors.New("request cannot be nil")
 	}
 
-	// Call the push service
 	_, err := s.pushService.SendPush(ctx, req)
 	if err != nil {
-		// Convert the error to a standard error response
-		st, ok := status.FromError(err)
-		if !ok {
-			st = status.New(codes.Internal, err.Error())
-		}
-
-		return response.New().
-			Error(st.Code()).
-			WithMessage(st.Message()).
-			WithError("PUSH_SEND_FAILED", nil), nil
+		return nil, err
 	}
 
-	// Create success response with the notification data
-	notificationResp := &StandardResponse{
+	return &NotificationResponse{
 		Success:        true,
 		Message:        "Push notification sent successfully",
 		NotificationId: generateID(),
-	}
-
-	// Convert to Any type
-	anyPayload, err := anypb.New(notificationResp)
-	if err != nil {
-		return response.New().
-			Error(codes.Internal).
-			WithMessage("failed to create response").
-			WithError("INTERNAL_ERROR", nil), nil
-	}
-
-	return response.New().
-		Success().
-		WithMessage("Push notification sent successfully").
-		WithData(anyPayload, nil)
+	}, nil
 }
 
 // contextInterceptor extracts request metadata and adds to context
@@ -250,17 +192,18 @@ func (s *Server) errorHandlingInterceptor(
 ) (resp interface{}, err error) {
 	resp, err = handler(ctx, req)
 	if err != nil {
-		// If the error is already a gRPC status error, return it directly
-		if _, ok := status.FromError(err); ok {
-			return nil, err
+		// Convert errors to gRPC status errors
+		var code codes.Code
+		switch {
+		case errors.Is(err, context.DeadlineExceeded):
+			code = codes.DeadlineExceeded
+		case errors.Is(err, context.Canceled):
+			code = codes.Canceled
+		default:
+			code = codes.Internal
 		}
 
-		// Convert other errors to standard response
-		builder := response.New().
-			Error(codes.Internal).
-			WithMessage(err.Error())
-
-		return builder.WithError("INTERNAL_ERROR", nil), nil
+		return nil, status.Errorf(code, "request failed: %v", err)
 	}
 	return resp, nil
 }

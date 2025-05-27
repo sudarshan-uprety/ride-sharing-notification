@@ -2,14 +2,14 @@ package rpc
 
 import (
 	"context"
+	"ride-sharing-notification/internal/proto/notification"
 )
 
 // EmailServiceClient is an interface for email service
 type EmailServiceClient interface {
-	SendEmail(ctx context.Context, req *EmailRequest) (*NotificationResponse, error)
+	SendEmail(ctx context.Context, req *notification.EmailRequest) (*notification.StandardResponse, error)
 }
 
-// PushServiceClient is an interface for push notification service
 type PushServiceClient interface {
-	SendPush(ctx context.Context, req *PushRequest) (*NotificationResponse, error)
+	SendPush(ctx context.Context, req *notification.PushRequest) (*notification.StandardResponse, error)
 }
