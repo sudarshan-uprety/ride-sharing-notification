@@ -5,6 +5,10 @@ option go_package = "ride-sharing-notification/internal/proto/notification";
 
 import "google/protobuf/any.proto";
 
+service NotificationService {
+  rpc SendEmail (EmailRequest) returns (StandardResponse);
+  rpc SendPush (PushRequest) returns (StandardResponse);
+}
 message StandardResponse {
   bool success = 1;
   string message = 2;

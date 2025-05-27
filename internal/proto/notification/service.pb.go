@@ -457,7 +457,10 @@ const file_service_proto_rawDesc = "" +
 	"\x04data\x18\x04 \x03(\v2#.notification.PushRequest.DataEntryR\x04data\x1a7\n" +
 	"\tDataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B7Z5ride-sharing-notification/internal/proto/notificationb\x06proto3"
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xa5\x01\n" +
+	"\x13NotificationService\x12G\n" +
+	"\tSendEmail\x12\x1a.notification.EmailRequest\x1a\x1e.notification.StandardResponse\x12E\n" +
+	"\bSendPush\x12\x19.notification.PushRequest\x1a\x1e.notification.StandardResponseB7Z5ride-sharing-notification/internal/proto/notificationb\x06proto3"
 
 var (
 	file_service_proto_rawDescOnce sync.Once
@@ -490,8 +493,12 @@ var file_service_proto_depIdxs = []int32{
 	3, // 3: notification.DataResponse.meta:type_name -> notification.MetaData
 	6, // 4: notification.ErrorResponse.details:type_name -> notification.ErrorResponse.DetailsEntry
 	7, // 5: notification.PushRequest.data:type_name -> notification.PushRequest.DataEntry
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
+	4, // 6: notification.NotificationService.SendEmail:input_type -> notification.EmailRequest
+	5, // 7: notification.NotificationService.SendPush:input_type -> notification.PushRequest
+	0, // 8: notification.NotificationService.SendEmail:output_type -> notification.StandardResponse
+	0, // 9: notification.NotificationService.SendPush:output_type -> notification.StandardResponse
+	8, // [8:10] is the sub-list for method output_type
+	6, // [6:8] is the sub-list for method input_type
 	6, // [6:6] is the sub-list for extension type_name
 	6, // [6:6] is the sub-list for extension extendee
 	0, // [0:6] is the sub-list for field type_name
@@ -514,7 +521,7 @@ func file_service_proto_init() {
 			NumEnums:      0,
 			NumMessages:   8,
 			NumExtensions: 0,
-			NumServices:   0,
+			NumServices:   1,
 		},
 		GoTypes:           file_service_proto_goTypes,
 		DependencyIndexes: file_service_proto_depIdxs,

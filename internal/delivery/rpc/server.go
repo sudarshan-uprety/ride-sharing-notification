@@ -7,6 +7,7 @@ import (
 	"net"
 	"ride-sharing-notification/internal/pkg/logging"
 	"ride-sharing-notification/internal/pkg/response"
+	"ride-sharing-notification/internal/proto/notification"
 	"time"
 
 	"go.uber.org/zap"
@@ -18,7 +19,7 @@ import (
 )
 
 type Server struct {
-	UnimplementedNotificationServiceServer
+	notification.UnimplementedNotificationServiceServer
 	emailService EmailServiceClient
 	pushService  PushServiceClient
 	grpcServer   *grpc.Server
@@ -47,7 +48,7 @@ func (s *Server) Start(port string) error {
 			s.errorHandlingInterceptor,
 		),
 	)
-	RegisterNotificationServiceServer(s.grpcServer, s)
+	notification.RegisterNotificationServiceServer(s.grpcServer, s)
 
 	logging.GetLogger().Info("gRPC server started", zap.String("port", port))
 	return s.grpcServer.Serve(lis)
@@ -71,7 +72,7 @@ func (s *Server) Stop(ctx context.Context) {
 	}
 }
 
-func (s *Server) SendEmail(ctx context.Context, req *EmailRequest) (*StandardResponse, error) {
+func (s *Server) SendEmail(ctx context.Context, req *notification.EmailRequest) (*notification.StandardResponse, error) {
 	if req == nil {
 		return response.New().
 			Error(codes.InvalidArgument).
@@ -96,9 +97,8 @@ func (s *Server) SendEmail(ctx context.Context, req *EmailRequest) (*StandardRes
 
 	// Create success response with the notification data
 	notificationResp := &StandardResponse{
-		Success:        true,
-		Message:        "Email sent successfully",
-		NotificationId: generateID(),
+		Success: true,
+		Message: "Email sent successfully",
 	}
 
 	// Convert to Any type
@@ -116,7 +116,7 @@ func (s *Server) SendEmail(ctx context.Context, req *EmailRequest) (*StandardRes
 		WithData(anyPayload, nil)
 }
 
-func (s *Server) SendPush(ctx context.Context, req *PushRequest) (*StandardResponse, error) {
+func (s *Server) SendPush(ctx context.Context, req *notification.PushRequest) (*notification.StandardResponse, error) {
 	if req == nil {
 		return response.New().
 			Error(codes.InvalidArgument).
@@ -141,9 +141,8 @@ func (s *Server) SendPush(ctx context.Context, req *PushRequest) (*StandardRespo
 
 	// Create success response with the notification data
 	notificationResp := &StandardResponse{
-		Success:        true,
-		Message:        "Push notification sent successfully",
-		NotificationId: generateID(),
+		Success: true,
+		Message: "Push notification sent successfully",
 	}
 
 	// Convert to Any type
