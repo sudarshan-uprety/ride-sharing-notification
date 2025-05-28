@@ -9,7 +9,6 @@ import (
 	"ride-sharing-notification/internal/proto/notification"
 	"time"
 
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -136,8 +135,4 @@ func (s *Service) sendEmail(ctx context.Context, from, to string, message []byte
 	case <-ctx.Done():
 		return ctx.Err()
 	}
-}
-
-func generateID() string {
-	return uuid.New().String()
 }
