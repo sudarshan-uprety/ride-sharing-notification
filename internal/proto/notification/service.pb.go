@@ -295,8 +295,7 @@ func (x *MetaData) GetTotal() int32 {
 type EmailRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	To            string                 `protobuf:"bytes,1,opt,name=to,proto3" json:"to,omitempty"`
-	Subject       string                 `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
-	Body          string                 `protobuf:"bytes,3,opt,name=body,proto3" json:"body,omitempty"`
+	EmailType     string                 `protobuf:"bytes,2,opt,name=email_type,json=emailType,proto3" json:"email_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -338,16 +337,9 @@ func (x *EmailRequest) GetTo() string {
 	return ""
 }
 
-func (x *EmailRequest) GetSubject() string {
+func (x *EmailRequest) GetEmailType() string {
 	if x != nil {
-		return x.Subject
-	}
-	return ""
-}
-
-func (x *EmailRequest) GetBody() string {
-	if x != nil {
-		return x.Body
+		return x.EmailType
 	}
 	return ""
 }
@@ -445,11 +437,11 @@ const file_service_proto_rawDesc = "" +
 	"\bMetaData\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x05R\x04page\x12\x19\n" +
 	"\bper_page\x18\x02 \x01(\x05R\aperPage\x12\x14\n" +
-	"\x05total\x18\x03 \x01(\x05R\x05total\"L\n" +
+	"\x05total\x18\x03 \x01(\x05R\x05total\"=\n" +
 	"\fEmailRequest\x12\x0e\n" +
-	"\x02to\x18\x01 \x01(\tR\x02to\x12\x18\n" +
-	"\asubject\x18\x02 \x01(\tR\asubject\x12\x12\n" +
-	"\x04body\x18\x03 \x01(\tR\x04body\"\xcc\x01\n" +
+	"\x02to\x18\x01 \x01(\tR\x02to\x12\x1d\n" +
+	"\n" +
+	"email_type\x18\x02 \x01(\tR\temailType\"\xcc\x01\n" +
 	"\vPushRequest\x12!\n" +
 	"\fdevice_token\x18\x01 \x01(\tR\vdeviceToken\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x12\n" +
