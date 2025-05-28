@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/smtp"
 	"ride-sharing-notification/config"
-	"ride-sharing-notification/internal/delivery/rpc"
+	"ride-sharing-notification/internal/proto/notification"
 	"time"
 
 	"github.com/google/uuid"
@@ -43,7 +43,7 @@ func (s *Service) SetLogger(logger *zap.Logger) {
 	s.logger = logger
 }
 
-func (s *Service) SendEmail(ctx context.Context, req *rpc.EmailRequest) (*rpc.NotificationResponse, error) {
+func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest) (*notification.StandardResponse, error) {
 	if req == nil {
 		return nil, errors.New("email request cannot be nil")
 	}
@@ -93,10 +93,9 @@ func (s *Service) SendEmail(ctx context.Context, req *rpc.EmailRequest) (*rpc.No
 				)
 			}
 
-			return &rpc.NotificationResponse{
-				Success:        true,
-				Message:        "Email sent successfully",
-				NotificationId: generateID(),
+			return &notification.StandardResponse{
+				Success: true,
+				Message: "Email sent successfully",
 			}, nil
 		}
 

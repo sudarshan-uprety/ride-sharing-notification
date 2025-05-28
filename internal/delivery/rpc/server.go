@@ -27,11 +27,9 @@ type Server struct {
 
 func NewServer(
 	emailService EmailServiceClient,
-	pushService PushServiceClient,
 ) *Server {
 	return &Server{
 		emailService: emailService,
-		pushService:  pushService,
 	}
 }
 func (s *Server) Start(port string) error {
@@ -96,7 +94,7 @@ func (s *Server) SendEmail(ctx context.Context, req *notification.EmailRequest) 
 	}
 
 	// Create success response with the notification data
-	notificationResp := &StandardResponse{
+	notificationResp := &notification.StandardResponse{
 		Success: true,
 		Message: "Email sent successfully",
 	}
@@ -140,7 +138,7 @@ func (s *Server) SendPush(ctx context.Context, req *notification.PushRequest) (*
 	}
 
 	// Create success response with the notification data
-	notificationResp := &StandardResponse{
+	notificationResp := &notification.StandardResponse{
 		Success: true,
 		Message: "Push notification sent successfully",
 	}
