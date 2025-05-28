@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"net"
 	"ride-sharing-notification/internal/pkg/logging"
+	"ride-sharing-notification/internal/pkg/middleware"
 	"ride-sharing-notification/internal/pkg/response"
 	"ride-sharing-notification/internal/proto/notification"
 	"time"
@@ -41,9 +42,7 @@ func (s *Server) Start(port string) error {
 	s.grpcServer = grpc.NewServer(
 		grpc.ConnectionTimeout(5*time.Second),
 		grpc.ChainUnaryInterceptor(
-			s.contextInterceptor,
-			s.loggingInterceptor,
-			s.errorHandlingInterceptor,
+			middleware.LoggingInterceptor(),
 		),
 	)
 	notification.RegisterNotificationServiceServer(s.grpcServer, s)

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -22,7 +23,6 @@ const (
 var (
 	instance *Logger
 	once     sync.Once
-
 	// Fields to be masked in logs for security
 	sensitiveFields = map[string]struct{}{
 		"password":         {},
@@ -36,7 +36,6 @@ var (
 		"authorization":    {},
 		"set-cookie":       {},
 	}
-
 	// Standard metadata fields that will be included in all logs
 	standardFields []zap.Field
 )
@@ -61,15 +60,12 @@ func InitLogger(cfg LogConfig) {
 		zap.String("environment", cfg.Environment),
 		zap.String("version", cfg.Version),
 	}
-
 	// Create directory if it doesn't exist
 	logDir := filepath.Join("log", cfg.Environment, cfg.Version)
 	if err := os.MkdirAll(logDir, 0755); err != nil {
 		panic("failed to create log directory: " + err.Error())
 	}
-
 	logPath := filepath.Join(logDir, "log.log")
-
 	// Configure the encoder
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        "timestamp",
@@ -85,7 +81,6 @@ func InitLogger(cfg LogConfig) {
 		EncodeDuration: zapcore.StringDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
-
 	// Setup log rotation
 	fileWriter := zapcore.AddSync(&lumberjack.Logger{
 		Filename:   logPath,
@@ -94,16 +89,13 @@ func InitLogger(cfg LogConfig) {
 		MaxAge:     30, // days
 		Compress:   true,
 	})
-
 	// Priority levels for routing logs
 	highPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 		return lvl >= zapcore.ErrorLevel
 	})
-
 	lowPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 		return lvl < zapcore.ErrorLevel && lvl >= zapcore.InfoLevel
 	})
-
 	// Multi-sink setup for different log levels
 	cores := []zapcore.Core{
 		// File output with rotation for all logs
@@ -125,7 +117,6 @@ func InitLogger(cfg LogConfig) {
 			lowPriority,
 		),
 	}
-
 	// Create the logger
 	zapLogger := zap.New(
 		zapcore.NewTee(cores...),
@@ -134,7 +125,6 @@ func InitLogger(cfg LogConfig) {
 		zap.AddStacktrace(zapcore.ErrorLevel),
 		zap.Fields(standardFields...),
 	)
-
 	// Set the global instance
 	instance = &Logger{zapLogger}
 }
@@ -160,17 +150,14 @@ func (l *Logger) WithContext(ctx context.Context) *Logger {
 	if ctx == nil {
 		return l
 	}
-
 	fields := []zap.Field{
 		zap.String("request_id", getStringFromContext(ctx, RequestIDKey)),
 		zap.String("correlation_id", getStringFromContext(ctx, CorrelationID)),
 	}
-
 	// Add goroutine ID for debugging concurrent issues
 	var buf [64]byte
 	n := runtime.Stack(buf[:], false)
 	fields = append(fields, zap.String("goroutine", strings.Fields(string(buf[:n]))[1]))
-
 	return &Logger{l.Logger.With(fields...)}
 }
 
@@ -207,4 +194,8 @@ func MaskSensitiveData(data interface{}) interface{} {
 	default:
 		return data
 	}
+}
+
+func GenerateID() string {
+	return uuid.New().String()
 }
