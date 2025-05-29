@@ -19,15 +19,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	NotificationService_SendEmail_FullMethodName = "/notification.NotificationService/SendEmail"
-	NotificationService_SendPush_FullMethodName  = "/notification.NotificationService/SendPush"
+	NotificationService_SendRegisterEmail_FullMethodName       = "/notification.NotificationService/SendRegisterEmail"
+	NotificationService_SendForgetPasswordEmail_FullMethodName = "/notification.NotificationService/SendForgetPasswordEmail"
+	NotificationService_SendPush_FullMethodName                = "/notification.NotificationService/SendPush"
 )
 
 // NotificationServiceClient is the client API for NotificationService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NotificationServiceClient interface {
-	SendEmail(ctx context.Context, in *EmailRequest, opts ...grpc.CallOption) (*StandardResponse, error)
+	SendRegisterEmail(ctx context.Context, in *RegisterEmailRequest, opts ...grpc.CallOption) (*StandardResponse, error)
+	SendForgetPasswordEmail(ctx context.Context, in *ForgetPasswordEmailRequest, opts ...grpc.CallOption) (*StandardResponse, error)
 	SendPush(ctx context.Context, in *PushRequest, opts ...grpc.CallOption) (*StandardResponse, error)
 }
 
@@ -39,10 +41,20 @@ func NewNotificationServiceClient(cc grpc.ClientConnInterface) NotificationServi
 	return &notificationServiceClient{cc}
 }
 
-func (c *notificationServiceClient) SendEmail(ctx context.Context, in *EmailRequest, opts ...grpc.CallOption) (*StandardResponse, error) {
+func (c *notificationServiceClient) SendRegisterEmail(ctx context.Context, in *RegisterEmailRequest, opts ...grpc.CallOption) (*StandardResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(StandardResponse)
-	err := c.cc.Invoke(ctx, NotificationService_SendEmail_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, NotificationService_SendRegisterEmail_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *notificationServiceClient) SendForgetPasswordEmail(ctx context.Context, in *ForgetPasswordEmailRequest, opts ...grpc.CallOption) (*StandardResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StandardResponse)
+	err := c.cc.Invoke(ctx, NotificationService_SendForgetPasswordEmail_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +75,8 @@ func (c *notificationServiceClient) SendPush(ctx context.Context, in *PushReques
 // All implementations must embed UnimplementedNotificationServiceServer
 // for forward compatibility.
 type NotificationServiceServer interface {
-	SendEmail(context.Context, *EmailRequest) (*StandardResponse, error)
+	SendRegisterEmail(context.Context, *RegisterEmailRequest) (*StandardResponse, error)
+	SendForgetPasswordEmail(context.Context, *ForgetPasswordEmailRequest) (*StandardResponse, error)
 	SendPush(context.Context, *PushRequest) (*StandardResponse, error)
 	mustEmbedUnimplementedNotificationServiceServer()
 }
@@ -75,8 +88,11 @@ type NotificationServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedNotificationServiceServer struct{}
 
-func (UnimplementedNotificationServiceServer) SendEmail(context.Context, *EmailRequest) (*StandardResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendEmail not implemented")
+func (UnimplementedNotificationServiceServer) SendRegisterEmail(context.Context, *RegisterEmailRequest) (*StandardResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendRegisterEmail not implemented")
+}
+func (UnimplementedNotificationServiceServer) SendForgetPasswordEmail(context.Context, *ForgetPasswordEmailRequest) (*StandardResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendForgetPasswordEmail not implemented")
 }
 func (UnimplementedNotificationServiceServer) SendPush(context.Context, *PushRequest) (*StandardResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendPush not implemented")
@@ -102,20 +118,38 @@ func RegisterNotificationServiceServer(s grpc.ServiceRegistrar, srv Notification
 	s.RegisterService(&NotificationService_ServiceDesc, srv)
 }
 
-func _NotificationService_SendEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EmailRequest)
+func _NotificationService_SendRegisterEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterEmailRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NotificationServiceServer).SendEmail(ctx, in)
+		return srv.(NotificationServiceServer).SendRegisterEmail(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: NotificationService_SendEmail_FullMethodName,
+		FullMethod: NotificationService_SendRegisterEmail_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NotificationServiceServer).SendEmail(ctx, req.(*EmailRequest))
+		return srv.(NotificationServiceServer).SendRegisterEmail(ctx, req.(*RegisterEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NotificationService_SendForgetPasswordEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ForgetPasswordEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotificationServiceServer).SendForgetPasswordEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NotificationService_SendForgetPasswordEmail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotificationServiceServer).SendForgetPasswordEmail(ctx, req.(*ForgetPasswordEmailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -146,8 +180,12 @@ var NotificationService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*NotificationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SendEmail",
-			Handler:    _NotificationService_SendEmail_Handler,
+			MethodName: "SendRegisterEmail",
+			Handler:    _NotificationService_SendRegisterEmail_Handler,
+		},
+		{
+			MethodName: "SendForgetPasswordEmail",
+			Handler:    _NotificationService_SendForgetPasswordEmail_Handler,
 		},
 		{
 			MethodName: "SendPush",

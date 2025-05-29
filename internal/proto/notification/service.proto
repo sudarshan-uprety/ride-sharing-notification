@@ -6,7 +6,8 @@ option go_package = "ride-sharing-notification/internal/proto/notification";
 import "google/protobuf/any.proto";
 
 service NotificationService {
-  rpc SendEmail (EmailRequest) returns (StandardResponse);
+  rpc SendRegisterEmail (RegisterEmailRequest) returns (StandardResponse);
+  rpc SendForgetPasswordEmail (ForgetPasswordEmailRequest) returns (StandardResponse);
   rpc SendPush (PushRequest) returns (StandardResponse);
 }
 message StandardResponse {
@@ -35,9 +36,16 @@ message MetaData {
   int32 total = 3;
 }
 
-message EmailRequest {
+message RegisterEmailRequest {
   string to = 1;
   string email_type = 2;
+  string otp = 3;
+}
+
+message ForgetPasswordEmailRequest {
+  string to = 1;
+  string email_type = 2;
+  string otp = 3;
 }
 
 message PushRequest {

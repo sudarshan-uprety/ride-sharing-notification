@@ -292,28 +292,29 @@ func (x *MetaData) GetTotal() int32 {
 	return 0
 }
 
-type EmailRequest struct {
+type RegisterEmailRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	To            string                 `protobuf:"bytes,1,opt,name=to,proto3" json:"to,omitempty"`
 	EmailType     string                 `protobuf:"bytes,2,opt,name=email_type,json=emailType,proto3" json:"email_type,omitempty"`
+	Otp           string                 `protobuf:"bytes,3,opt,name=otp,proto3" json:"otp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *EmailRequest) Reset() {
-	*x = EmailRequest{}
+func (x *RegisterEmailRequest) Reset() {
+	*x = RegisterEmailRequest{}
 	mi := &file_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *EmailRequest) String() string {
+func (x *RegisterEmailRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EmailRequest) ProtoMessage() {}
+func (*RegisterEmailRequest) ProtoMessage() {}
 
-func (x *EmailRequest) ProtoReflect() protoreflect.Message {
+func (x *RegisterEmailRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -325,21 +326,88 @@ func (x *EmailRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use EmailRequest.ProtoReflect.Descriptor instead.
-func (*EmailRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use RegisterEmailRequest.ProtoReflect.Descriptor instead.
+func (*RegisterEmailRequest) Descriptor() ([]byte, []int) {
 	return file_service_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *EmailRequest) GetTo() string {
+func (x *RegisterEmailRequest) GetTo() string {
 	if x != nil {
 		return x.To
 	}
 	return ""
 }
 
-func (x *EmailRequest) GetEmailType() string {
+func (x *RegisterEmailRequest) GetEmailType() string {
 	if x != nil {
 		return x.EmailType
+	}
+	return ""
+}
+
+func (x *RegisterEmailRequest) GetOtp() string {
+	if x != nil {
+		return x.Otp
+	}
+	return ""
+}
+
+type ForgetPasswordEmailRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	To            string                 `protobuf:"bytes,1,opt,name=to,proto3" json:"to,omitempty"`
+	EmailType     string                 `protobuf:"bytes,2,opt,name=email_type,json=emailType,proto3" json:"email_type,omitempty"`
+	Otp           string                 `protobuf:"bytes,3,opt,name=otp,proto3" json:"otp,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ForgetPasswordEmailRequest) Reset() {
+	*x = ForgetPasswordEmailRequest{}
+	mi := &file_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ForgetPasswordEmailRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ForgetPasswordEmailRequest) ProtoMessage() {}
+
+func (x *ForgetPasswordEmailRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ForgetPasswordEmailRequest.ProtoReflect.Descriptor instead.
+func (*ForgetPasswordEmailRequest) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ForgetPasswordEmailRequest) GetTo() string {
+	if x != nil {
+		return x.To
+	}
+	return ""
+}
+
+func (x *ForgetPasswordEmailRequest) GetEmailType() string {
+	if x != nil {
+		return x.EmailType
+	}
+	return ""
+}
+
+func (x *ForgetPasswordEmailRequest) GetOtp() string {
+	if x != nil {
+		return x.Otp
 	}
 	return ""
 }
@@ -356,7 +424,7 @@ type PushRequest struct {
 
 func (x *PushRequest) Reset() {
 	*x = PushRequest{}
-	mi := &file_service_proto_msgTypes[5]
+	mi := &file_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -368,7 +436,7 @@ func (x *PushRequest) String() string {
 func (*PushRequest) ProtoMessage() {}
 
 func (x *PushRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[5]
+	mi := &file_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -381,7 +449,7 @@ func (x *PushRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PushRequest.ProtoReflect.Descriptor instead.
 func (*PushRequest) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{5}
+	return file_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *PushRequest) GetDeviceToken() string {
@@ -437,11 +505,17 @@ const file_service_proto_rawDesc = "" +
 	"\bMetaData\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x05R\x04page\x12\x19\n" +
 	"\bper_page\x18\x02 \x01(\x05R\aperPage\x12\x14\n" +
-	"\x05total\x18\x03 \x01(\x05R\x05total\"=\n" +
-	"\fEmailRequest\x12\x0e\n" +
+	"\x05total\x18\x03 \x01(\x05R\x05total\"W\n" +
+	"\x14RegisterEmailRequest\x12\x0e\n" +
 	"\x02to\x18\x01 \x01(\tR\x02to\x12\x1d\n" +
 	"\n" +
-	"email_type\x18\x02 \x01(\tR\temailType\"\xcc\x01\n" +
+	"email_type\x18\x02 \x01(\tR\temailType\x12\x10\n" +
+	"\x03otp\x18\x03 \x01(\tR\x03otp\"]\n" +
+	"\x1aForgetPasswordEmailRequest\x12\x0e\n" +
+	"\x02to\x18\x01 \x01(\tR\x02to\x12\x1d\n" +
+	"\n" +
+	"email_type\x18\x02 \x01(\tR\temailType\x12\x10\n" +
+	"\x03otp\x18\x03 \x01(\tR\x03otp\"\xcc\x01\n" +
 	"\vPushRequest\x12!\n" +
 	"\fdevice_token\x18\x01 \x01(\tR\vdeviceToken\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x12\n" +
@@ -449,9 +523,10 @@ const file_service_proto_rawDesc = "" +
 	"\x04data\x18\x04 \x03(\v2#.notification.PushRequest.DataEntryR\x04data\x1a7\n" +
 	"\tDataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xa5\x01\n" +
-	"\x13NotificationService\x12G\n" +
-	"\tSendEmail\x12\x1a.notification.EmailRequest\x1a\x1e.notification.StandardResponse\x12E\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\x9a\x02\n" +
+	"\x13NotificationService\x12W\n" +
+	"\x11SendRegisterEmail\x12\".notification.RegisterEmailRequest\x1a\x1e.notification.StandardResponse\x12c\n" +
+	"\x17SendForgetPasswordEmail\x12(.notification.ForgetPasswordEmailRequest\x1a\x1e.notification.StandardResponse\x12E\n" +
 	"\bSendPush\x12\x19.notification.PushRequest\x1a\x1e.notification.StandardResponseB7Z5ride-sharing-notification/internal/proto/notificationb\x06proto3"
 
 var (
@@ -466,31 +541,34 @@ func file_service_proto_rawDescGZIP() []byte {
 	return file_service_proto_rawDescData
 }
 
-var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_service_proto_goTypes = []any{
-	(*StandardResponse)(nil), // 0: notification.StandardResponse
-	(*DataResponse)(nil),     // 1: notification.DataResponse
-	(*ErrorResponse)(nil),    // 2: notification.ErrorResponse
-	(*MetaData)(nil),         // 3: notification.MetaData
-	(*EmailRequest)(nil),     // 4: notification.EmailRequest
-	(*PushRequest)(nil),      // 5: notification.PushRequest
-	nil,                      // 6: notification.ErrorResponse.DetailsEntry
-	nil,                      // 7: notification.PushRequest.DataEntry
-	(*anypb.Any)(nil),        // 8: google.protobuf.Any
+	(*StandardResponse)(nil),           // 0: notification.StandardResponse
+	(*DataResponse)(nil),               // 1: notification.DataResponse
+	(*ErrorResponse)(nil),              // 2: notification.ErrorResponse
+	(*MetaData)(nil),                   // 3: notification.MetaData
+	(*RegisterEmailRequest)(nil),       // 4: notification.RegisterEmailRequest
+	(*ForgetPasswordEmailRequest)(nil), // 5: notification.ForgetPasswordEmailRequest
+	(*PushRequest)(nil),                // 6: notification.PushRequest
+	nil,                                // 7: notification.ErrorResponse.DetailsEntry
+	nil,                                // 8: notification.PushRequest.DataEntry
+	(*anypb.Any)(nil),                  // 9: google.protobuf.Any
 }
 var file_service_proto_depIdxs = []int32{
 	1, // 0: notification.StandardResponse.data:type_name -> notification.DataResponse
 	2, // 1: notification.StandardResponse.error:type_name -> notification.ErrorResponse
-	8, // 2: notification.DataResponse.payload:type_name -> google.protobuf.Any
+	9, // 2: notification.DataResponse.payload:type_name -> google.protobuf.Any
 	3, // 3: notification.DataResponse.meta:type_name -> notification.MetaData
-	6, // 4: notification.ErrorResponse.details:type_name -> notification.ErrorResponse.DetailsEntry
-	7, // 5: notification.PushRequest.data:type_name -> notification.PushRequest.DataEntry
-	4, // 6: notification.NotificationService.SendEmail:input_type -> notification.EmailRequest
-	5, // 7: notification.NotificationService.SendPush:input_type -> notification.PushRequest
-	0, // 8: notification.NotificationService.SendEmail:output_type -> notification.StandardResponse
-	0, // 9: notification.NotificationService.SendPush:output_type -> notification.StandardResponse
-	8, // [8:10] is the sub-list for method output_type
-	6, // [6:8] is the sub-list for method input_type
+	7, // 4: notification.ErrorResponse.details:type_name -> notification.ErrorResponse.DetailsEntry
+	8, // 5: notification.PushRequest.data:type_name -> notification.PushRequest.DataEntry
+	4, // 6: notification.NotificationService.SendRegisterEmail:input_type -> notification.RegisterEmailRequest
+	5, // 7: notification.NotificationService.SendForgetPasswordEmail:input_type -> notification.ForgetPasswordEmailRequest
+	6, // 8: notification.NotificationService.SendPush:input_type -> notification.PushRequest
+	0, // 9: notification.NotificationService.SendRegisterEmail:output_type -> notification.StandardResponse
+	0, // 10: notification.NotificationService.SendForgetPasswordEmail:output_type -> notification.StandardResponse
+	0, // 11: notification.NotificationService.SendPush:output_type -> notification.StandardResponse
+	9, // [9:12] is the sub-list for method output_type
+	6, // [6:9] is the sub-list for method input_type
 	6, // [6:6] is the sub-list for extension type_name
 	6, // [6:6] is the sub-list for extension extendee
 	0, // [0:6] is the sub-list for field type_name
@@ -511,7 +589,7 @@ func file_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_service_proto_rawDesc), len(file_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

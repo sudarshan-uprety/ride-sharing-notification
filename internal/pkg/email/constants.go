@@ -14,18 +14,18 @@ type EmailTemplate struct {
 
 var EmailTemplates = map[string]EmailTemplate{
 	EmailTypeRegister: {
-		Subject:        "Welcome to Our Service - Complete Registration",
-		TemplateFile:   "register.html",
+		Subject:        "Welcome to Ride Sharing Service - Complete Registration",
+		TemplateFile:   "internal/pkg/email/templates/register.html",
 		RequiredFields: []string{"name", "otp"},
 	},
 	EmailTypeForgetPassword: {
 		Subject:        "Password Reset Request",
-		TemplateFile:   "forget_password.html",
+		TemplateFile:   "internal/pkg/email/templates/forget_password.html",
 		RequiredFields: []string{"name", "otp"},
 	},
 	EmailTypeResetPassword: {
 		Subject:        "Your Password Has Been Reset",
-		TemplateFile:   "reset_password.html",
+		TemplateFile:   "internal/pkg/email/templates/reset_password.html",
 		RequiredFields: []string{"name"},
 	},
 }

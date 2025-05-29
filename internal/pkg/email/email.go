@@ -28,7 +28,7 @@ type Service struct {
 	templateDir string
 }
 
-func NewService(cfg *config.Config, templateDir string) *Service {
+func NewService(cfg *config.Config) *Service {
 	auth := smtp.PlainAuth(
 		"",
 		cfg.Email.Username,
@@ -37,9 +37,8 @@ func NewService(cfg *config.Config, templateDir string) *Service {
 	)
 
 	return &Service{
-		config:      cfg,
-		auth:        auth,
-		templateDir: templateDir,
+		config: cfg,
+		auth:   auth,
 	}
 }
 
@@ -56,6 +55,7 @@ func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest)
 	if req.To == "" {
 		return nil, errors.New("recipient email cannot be empty")
 	}
+	println("REQUEST IS: ", req)
 	if req.EmailType == "" {
 		return nil, errors.New("email type cannot be empty")
 	}
@@ -65,9 +65,12 @@ func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest)
 	if !exists {
 		return nil, fmt.Errorf("unknown email type: %s", req.EmailType)
 	}
-
+	println("DATA IS: ", templateConfig.TemplateFile, req.EmailType)
 	// Render template from file
-	body, err := s.renderTemplate(templateConfig.TemplateFile, req.EmailType)
+	body, err := s.renderTemplate(templateConfig.TemplateFile, map[string]interface{}{
+		"name": "John Doe",
+		"otp":  "123456",
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to render template: %w", err)
 	}
@@ -113,7 +116,7 @@ func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest)
 	return nil, fmt.Errorf("after %d attempts, last error: %w", maxRetries, lastErr)
 }
 
-func (s *Service) renderTemplate(templateFile string, data string) (string, error) {
+func (s *Service) renderTemplate(templateFile string, data interface{}) (string, error) {
 	templatePath := filepath.Join(s.templateDir, templateFile)
 	tmpl, err := template.ParseFiles(templatePath)
 	if err != nil {
