@@ -52,7 +52,7 @@ func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest)
 		return nil, errors.New("email request cannot be nil")
 	}
 
-	// Validate email fields
+	// Validate required fields
 	if req.To == "" {
 		return nil, errors.New("recipient email cannot be empty")
 	}
@@ -60,14 +60,14 @@ func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest)
 		return nil, errors.New("email type cannot be empty")
 	}
 
-	// Get template config based on email type
+	// Get template config
 	templateConfig, exists := EmailTemplates[req.EmailType]
 	if !exists {
 		return nil, fmt.Errorf("unknown email type: %s", req.EmailType)
 	}
 
-	// Load and execute template with the request data
-	body, err := s.renderTemplate(templateConfig.TemplateFile, req.TemplateData)
+	// Render template from file
+	body, err := s.renderTemplate(templateConfig.TemplateFile, req.EmailType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to render template: %w", err)
 	}
@@ -92,8 +92,6 @@ func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest)
 	)
 
 	var lastErr error
-
-	// Retry logic
 	for attempt := 1; attempt <= maxRetries; attempt++ {
 		ctx, cancel := context.WithTimeout(ctx, timeoutDuration)
 		defer cancel()
@@ -115,10 +113,8 @@ func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest)
 	return nil, fmt.Errorf("after %d attempts, last error: %w", maxRetries, lastErr)
 }
 
-func (s *Service) renderTemplate(templateFile string, data map[string]string) (string, error) {
-	// Construct full template path
+func (s *Service) renderTemplate(templateFile string, data string) (string, error) {
 	templatePath := filepath.Join(s.templateDir, templateFile)
-
 	tmpl, err := template.ParseFiles(templatePath)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse template: %w", err)
