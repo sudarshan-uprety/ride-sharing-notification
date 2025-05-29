@@ -1,10 +1,13 @@
 package email
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"html/template"
 	"net/smtp"
+	"path/filepath"
 	"ride-sharing-notification/config"
 	"ride-sharing-notification/internal/proto/notification"
 	"time"
@@ -19,12 +22,13 @@ const (
 )
 
 type Service struct {
-	config *config.Config
-	logger *zap.Logger
-	auth   smtp.Auth
+	config      *config.Config
+	logger      *zap.Logger
+	auth        smtp.Auth
+	templateDir string
 }
 
-func NewService(cfg *config.Config) *Service {
+func NewService(cfg *config.Config, templateDir string) *Service {
 	auth := smtp.PlainAuth(
 		"",
 		cfg.Email.Username,
@@ -33,8 +37,9 @@ func NewService(cfg *config.Config) *Service {
 	)
 
 	return &Service{
-		config: cfg,
-		auth:   auth,
+		config:      cfg,
+		auth:        auth,
+		templateDir: templateDir,
 	}
 }
 
@@ -51,8 +56,20 @@ func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest)
 	if req.To == "" {
 		return nil, errors.New("recipient email cannot be empty")
 	}
-	if req.Subject == "" || req.Body == "" {
-		return nil, errors.New("email subject and body cannot be empty")
+	if req.EmailType == "" {
+		return nil, errors.New("email type cannot be empty")
+	}
+
+	// Get template config based on email type
+	templateConfig, exists := EmailTemplates[req.EmailType]
+	if !exists {
+		return nil, fmt.Errorf("unknown email type: %s", req.EmailType)
+	}
+
+	// Load and execute template with the request data
+	body, err := s.renderTemplate(templateConfig.TemplateFile, req.TemplateData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to render template: %w", err)
 	}
 
 	from := s.config.Email.FromEmail
@@ -70,8 +87,8 @@ func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest)
 			"%s\r\n",
 		from,
 		req.To,
-		req.Subject,
-		req.Body,
+		templateConfig.Subject,
+		body,
 	)
 
 	var lastErr error
@@ -83,15 +100,6 @@ func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest)
 
 		err := s.sendEmail(ctx, from, req.To, []byte(message))
 		if err == nil {
-			// Success
-			if s.logger != nil {
-				s.logger.Info("Email sent successfully via Zoho Mail",
-					zap.String("to", req.To),
-					zap.String("subject", req.Subject),
-					zap.Int("attempt", attempt),
-				)
-			}
-
 			return &notification.StandardResponse{
 				Success: true,
 				Message: "Email sent successfully",
@@ -99,21 +107,29 @@ func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest)
 		}
 
 		lastErr = err
-		if s.logger != nil {
-			s.logger.Error("Failed to send email via Zoho Mail",
-				zap.String("to", req.To),
-				zap.String("subject", req.Subject),
-				zap.Int("attempt", attempt),
-				zap.Error(err),
-			)
-		}
-
 		if attempt < maxRetries {
 			time.Sleep(retryDelay)
 		}
 	}
 
 	return nil, fmt.Errorf("after %d attempts, last error: %w", maxRetries, lastErr)
+}
+
+func (s *Service) renderTemplate(templateFile string, data map[string]string) (string, error) {
+	// Construct full template path
+	templatePath := filepath.Join(s.templateDir, templateFile)
+
+	tmpl, err := template.ParseFiles(templatePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse template: %w", err)
+	}
+
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
+		return "", fmt.Errorf("failed to execute template: %w", err)
+	}
+
+	return buf.String(), nil
 }
 
 func (s *Service) sendEmail(ctx context.Context, from, to string, message []byte) error {
