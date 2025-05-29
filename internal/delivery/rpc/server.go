@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"net"
+	"ride-sharing-notification/internal/pkg/email"
 	"ride-sharing-notification/internal/pkg/logging"
 	"ride-sharing-notification/internal/pkg/middleware"
 	"ride-sharing-notification/internal/pkg/response"
@@ -21,18 +22,17 @@ import (
 
 type Server struct {
 	notification.UnimplementedNotificationServiceServer
-	emailService EmailServiceClient
+	emailService *email.Service
 	pushService  PushServiceClient
 	grpcServer   *grpc.Server
 }
 
-func NewServer(
-	emailService EmailServiceClient,
-) *Server {
+func NewServer(emailService *email.Service) *Server {
 	return &Server{
 		emailService: emailService,
 	}
 }
+
 func (s *Server) Start(port string) error {
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
@@ -70,14 +70,25 @@ func (s *Server) Stop(ctx context.Context) {
 }
 
 func (s *Server) SendRegisterEmail(ctx context.Context, req *notification.RegisterEmailRequest) (*notification.StandardResponse, error) {
-	if req == nil {
+	if req == nil || req.To == "" || req.Otp == "" {
 		return response.New().
 			Error(codes.InvalidArgument).
-			WithMessage("request cannot be nil").
+			WithMessage("missing required fields: 'to' and 'otp'").
 			SimpleError("INVALID_REQUEST"), nil
 	}
 
-	_, err := s.emailService.SendRegisterEmail(ctx, req)
+	// Build email payload
+	payload := &email.EmailPayload{
+		To:         req.To,
+		EMAIL_TYPE: email.EmailTypeRegister,
+		Data: map[string]interface{}{
+			"name": req.To,
+			"otp":  req.Otp,
+		},
+	}
+
+	// Call the email service
+	emailResp, err := s.emailService.VerifyEmail(ctx, payload)
 	if err != nil {
 		st, ok := status.FromError(err)
 		if !ok {
@@ -90,16 +101,12 @@ func (s *Server) SendRegisterEmail(ctx context.Context, req *notification.Regist
 			WithError("EMAIL_SEND_FAILED", nil), nil
 	}
 
-	notificationResp := &notification.StandardResponse{
-		Success: true,
-		Message: "Registration email sent successfully",
-	}
-
-	anyPayload, err := anypb.New(notificationResp)
+	// Marshal the success response into `Any`
+	anyPayload, err := anypb.New(emailResp)
 	if err != nil {
 		return response.New().
 			Error(codes.Internal).
-			WithMessage("failed to create response").
+			WithMessage("failed to wrap response").
 			WithError("INTERNAL_ERROR", nil), nil
 	}
 
@@ -110,14 +117,24 @@ func (s *Server) SendRegisterEmail(ctx context.Context, req *notification.Regist
 }
 
 func (s *Server) SendForgetPasswordEmail(ctx context.Context, req *notification.ForgetPasswordEmailRequest) (*notification.StandardResponse, error) {
-	if req == nil {
+	if req == nil || req.To == "" || req.Otp == "" {
 		return response.New().
 			Error(codes.InvalidArgument).
-			WithMessage("request cannot be nil").
+			WithMessage("missing required fields: 'to' and 'otp'").
 			SimpleError("INVALID_REQUEST"), nil
 	}
 
-	_, err := s.emailService.SendForgetPasswordEmail(ctx, req)
+	payload := &email.EmailPayload{
+		To:         req.To,
+		EMAIL_TYPE: email.EmailTypeForgetPassword,
+		Data: map[string]interface{}{
+			"name": req.To,
+			"otp":  req.Otp,
+		},
+	}
+
+	// Call the email service
+	emailResp, err := s.emailService.VerifyEmail(ctx, payload)
 	if err != nil {
 		st, ok := status.FromError(err)
 		if !ok {
@@ -130,22 +147,18 @@ func (s *Server) SendForgetPasswordEmail(ctx context.Context, req *notification.
 			WithError("EMAIL_SEND_FAILED", nil), nil
 	}
 
-	notificationResp := &notification.StandardResponse{
-		Success: true,
-		Message: "Password reset email sent successfully",
-	}
-
-	anyPayload, err := anypb.New(notificationResp)
+	// Marshal the success response into `Any`
+	anyPayload, err := anypb.New(emailResp)
 	if err != nil {
 		return response.New().
 			Error(codes.Internal).
-			WithMessage("failed to create response").
+			WithMessage("failed to wrap response").
 			WithError("INTERNAL_ERROR", nil), nil
 	}
 
 	return response.New().
 		Success().
-		WithMessage("Password reset email sent successfully").
+		WithMessage("Forget-password email sent successfully").
 		WithData(anyPayload, nil)
 }
 

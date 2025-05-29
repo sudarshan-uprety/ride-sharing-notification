@@ -6,6 +6,12 @@ const (
 	EmailTypeResetPassword  = "RESET_PASSWORD"
 )
 
+type EmailPayload struct {
+	To         string
+	EMAIL_TYPE string
+	Data       map[string]interface{}
+}
+
 type EmailTemplate struct {
 	Subject        string
 	TemplateFile   string

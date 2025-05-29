@@ -45,28 +45,33 @@ func (s *Service) SetLogger(logger *zap.Logger) {
 	s.logger = logger
 }
 
-func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest) (*notification.StandardResponse, error) {
-
-	// Get template config
-	templateConfig, exists := EmailTemplates[req.EmailType]
-	if !exists {
-		return nil, fmt.Errorf("unknown email type: %s", req.EmailType)
+func (s *Service) VerifyEmail(ctx context.Context, req *EmailPayload) (*notification.StandardResponse, error) {
+	if req == nil {
+		return nil, fmt.Errorf("email request cannot be nil")
 	}
-	println("DATA IS: ", templateConfig.TemplateFile, req.EmailType)
-	// Render template from file
-	body, err := s.renderTemplate(templateConfig.TemplateFile, map[string]interface{}{
-		"name": "John Doe",
-		"otp":  "123456",
-	})
+	if req.To == "" {
+		return nil, fmt.Errorf("email type and recipient are required")
+	}
+
+	// Fetch the template config
+	templateConfig, exists := EmailTemplates[req.EMAIL_TYPE]
+	if !exists {
+		return nil, fmt.Errorf("unknown email type: %s", req.EMAIL_TYPE)
+	}
+
+	// Render the HTML body with dynamic data
+	body, err := s.renderTemplate(templateConfig.TemplateFile, req.Data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to render template: %w", err)
 	}
 
+	// Set sender
 	from := s.config.Email.FromEmail
 	if from == "" {
 		from = s.config.Email.Username
 	}
 
+	// Construct the email
 	message := fmt.Sprintf(
 		"From: %s\r\n"+
 			"To: %s\r\n"+
@@ -81,6 +86,7 @@ func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest)
 		body,
 	)
 
+	// Retry logic
 	var lastErr error
 	for attempt := 1; attempt <= maxRetries; attempt++ {
 		ctx, cancel := context.WithTimeout(ctx, timeoutDuration)
@@ -93,7 +99,6 @@ func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest)
 				Message: "Email sent successfully",
 			}, nil
 		}
-
 		lastErr = err
 		if attempt < maxRetries {
 			time.Sleep(retryDelay)
