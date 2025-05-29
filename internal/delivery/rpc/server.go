@@ -69,7 +69,7 @@ func (s *Server) Stop(ctx context.Context) {
 	}
 }
 
-func (s *Server) SendEmail(ctx context.Context, req *notification.EmailRequest) (*notification.StandardResponse, error) {
+func (s *Server) SendRegisterEmail(ctx context.Context, req *notification.RegisterEmailRequest) (*notification.StandardResponse, error) {
 	if req == nil {
 		return response.New().
 			Error(codes.InvalidArgument).
@@ -77,10 +77,8 @@ func (s *Server) SendEmail(ctx context.Context, req *notification.EmailRequest) 
 			SimpleError("INVALID_REQUEST"), nil
 	}
 
-	// Call the email service
-	_, err := s.emailService.SendEmail(ctx, req)
+	_, err := s.emailService.SendRegisterEmail(ctx, req)
 	if err != nil {
-		// Convert the error to a standard error response
 		st, ok := status.FromError(err)
 		if !ok {
 			st = status.New(codes.Internal, err.Error())
@@ -92,13 +90,11 @@ func (s *Server) SendEmail(ctx context.Context, req *notification.EmailRequest) 
 			WithError("EMAIL_SEND_FAILED", nil), nil
 	}
 
-	// Create success response with the notification data
 	notificationResp := &notification.StandardResponse{
 		Success: true,
-		Message: "Email sent successfully",
+		Message: "Registration email sent successfully",
 	}
 
-	// Convert to Any type
 	anyPayload, err := anypb.New(notificationResp)
 	if err != nil {
 		return response.New().
@@ -109,7 +105,47 @@ func (s *Server) SendEmail(ctx context.Context, req *notification.EmailRequest) 
 
 	return response.New().
 		Success().
-		WithMessage("Email sent successfully").
+		WithMessage("Registration email sent successfully").
+		WithData(anyPayload, nil)
+}
+
+func (s *Server) SendForgetPasswordEmail(ctx context.Context, req *notification.ForgetPasswordEmailRequest) (*notification.StandardResponse, error) {
+	if req == nil {
+		return response.New().
+			Error(codes.InvalidArgument).
+			WithMessage("request cannot be nil").
+			SimpleError("INVALID_REQUEST"), nil
+	}
+
+	_, err := s.emailService.SendForgetPasswordEmail(ctx, req)
+	if err != nil {
+		st, ok := status.FromError(err)
+		if !ok {
+			st = status.New(codes.Internal, err.Error())
+		}
+
+		return response.New().
+			Error(st.Code()).
+			WithMessage(st.Message()).
+			WithError("EMAIL_SEND_FAILED", nil), nil
+	}
+
+	notificationResp := &notification.StandardResponse{
+		Success: true,
+		Message: "Password reset email sent successfully",
+	}
+
+	anyPayload, err := anypb.New(notificationResp)
+	if err != nil {
+		return response.New().
+			Error(codes.Internal).
+			WithMessage("failed to create response").
+			WithError("INTERNAL_ERROR", nil), nil
+	}
+
+	return response.New().
+		Success().
+		WithMessage("Password reset email sent successfully").
 		WithData(anyPayload, nil)
 }
 

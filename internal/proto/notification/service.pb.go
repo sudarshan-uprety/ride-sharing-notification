@@ -295,7 +295,6 @@ func (x *MetaData) GetTotal() int32 {
 type RegisterEmailRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	To            string                 `protobuf:"bytes,1,opt,name=to,proto3" json:"to,omitempty"`
-	EmailType     string                 `protobuf:"bytes,2,opt,name=email_type,json=emailType,proto3" json:"email_type,omitempty"`
 	Otp           string                 `protobuf:"bytes,3,opt,name=otp,proto3" json:"otp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -338,13 +337,6 @@ func (x *RegisterEmailRequest) GetTo() string {
 	return ""
 }
 
-func (x *RegisterEmailRequest) GetEmailType() string {
-	if x != nil {
-		return x.EmailType
-	}
-	return ""
-}
-
 func (x *RegisterEmailRequest) GetOtp() string {
 	if x != nil {
 		return x.Otp
@@ -355,7 +347,6 @@ func (x *RegisterEmailRequest) GetOtp() string {
 type ForgetPasswordEmailRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	To            string                 `protobuf:"bytes,1,opt,name=to,proto3" json:"to,omitempty"`
-	EmailType     string                 `protobuf:"bytes,2,opt,name=email_type,json=emailType,proto3" json:"email_type,omitempty"`
 	Otp           string                 `protobuf:"bytes,3,opt,name=otp,proto3" json:"otp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -394,13 +385,6 @@ func (*ForgetPasswordEmailRequest) Descriptor() ([]byte, []int) {
 func (x *ForgetPasswordEmailRequest) GetTo() string {
 	if x != nil {
 		return x.To
-	}
-	return ""
-}
-
-func (x *ForgetPasswordEmailRequest) GetEmailType() string {
-	if x != nil {
-		return x.EmailType
 	}
 	return ""
 }
@@ -505,16 +489,12 @@ const file_service_proto_rawDesc = "" +
 	"\bMetaData\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x05R\x04page\x12\x19\n" +
 	"\bper_page\x18\x02 \x01(\x05R\aperPage\x12\x14\n" +
-	"\x05total\x18\x03 \x01(\x05R\x05total\"W\n" +
+	"\x05total\x18\x03 \x01(\x05R\x05total\"8\n" +
 	"\x14RegisterEmailRequest\x12\x0e\n" +
-	"\x02to\x18\x01 \x01(\tR\x02to\x12\x1d\n" +
-	"\n" +
-	"email_type\x18\x02 \x01(\tR\temailType\x12\x10\n" +
-	"\x03otp\x18\x03 \x01(\tR\x03otp\"]\n" +
+	"\x02to\x18\x01 \x01(\tR\x02to\x12\x10\n" +
+	"\x03otp\x18\x03 \x01(\tR\x03otp\">\n" +
 	"\x1aForgetPasswordEmailRequest\x12\x0e\n" +
-	"\x02to\x18\x01 \x01(\tR\x02to\x12\x1d\n" +
-	"\n" +
-	"email_type\x18\x02 \x01(\tR\temailType\x12\x10\n" +
+	"\x02to\x18\x01 \x01(\tR\x02to\x12\x10\n" +
 	"\x03otp\x18\x03 \x01(\tR\x03otp\"\xcc\x01\n" +
 	"\vPushRequest\x12!\n" +
 	"\fdevice_token\x18\x01 \x01(\tR\vdeviceToken\x12\x14\n" +

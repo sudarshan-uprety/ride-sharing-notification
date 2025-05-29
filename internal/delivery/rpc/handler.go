@@ -7,7 +7,8 @@ import (
 
 // EmailServiceClient is an interface for email service
 type EmailServiceClient interface {
-	SendEmail(ctx context.Context, req *notification.EmailRequest) (*notification.StandardResponse, error)
+	SendRegisterEmail(ctx context.Context, req *notification.RegisterEmailRequest) (*notification.StandardResponse, error)
+	SendForgetPasswordEmail(ctx context.Context, req *notification.ForgetPasswordEmailRequest) (*notification.StandardResponse, error)
 }
 
 type PushServiceClient interface {

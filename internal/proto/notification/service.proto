@@ -38,13 +38,11 @@ message MetaData {
 
 message RegisterEmailRequest {
   string to = 1;
-  string email_type = 2;
   string otp = 3;
 }
 
 message ForgetPasswordEmailRequest {
   string to = 1;
-  string email_type = 2;
   string otp = 3;
 }
 

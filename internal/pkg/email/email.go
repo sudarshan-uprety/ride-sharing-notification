@@ -3,7 +3,6 @@ package email
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"html/template"
 	"net/smtp"
@@ -47,18 +46,6 @@ func (s *Service) SetLogger(logger *zap.Logger) {
 }
 
 func (s *Service) SendEmail(ctx context.Context, req *notification.EmailRequest) (*notification.StandardResponse, error) {
-	if req == nil {
-		return nil, errors.New("email request cannot be nil")
-	}
-
-	// Validate required fields
-	if req.To == "" {
-		return nil, errors.New("recipient email cannot be empty")
-	}
-	println("REQUEST IS: ", req)
-	if req.EmailType == "" {
-		return nil, errors.New("email type cannot be empty")
-	}
 
 	// Get template config
 	templateConfig, exists := EmailTemplates[req.EmailType]
