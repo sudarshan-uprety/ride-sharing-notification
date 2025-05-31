@@ -27,7 +27,7 @@ func main() {
 	})
 	emailSvc := email.NewService(cfg)
 	// Create gRPC server
-	grpcServer := rpc.NewServer(emailSvc)
+	grpcServer := rpc.NewGRPCServer(emailSvc)
 
 	// Start server in a goroutine
 	go func() {

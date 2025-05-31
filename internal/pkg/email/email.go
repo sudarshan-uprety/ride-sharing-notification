@@ -10,8 +10,6 @@ import (
 	"ride-sharing-notification/config"
 	"ride-sharing-notification/internal/proto/notification"
 	"time"
-
-	"go.uber.org/zap"
 )
 
 const (
@@ -22,7 +20,6 @@ const (
 
 type Service struct {
 	config      *config.Config
-	logger      *zap.Logger
 	auth        smtp.Auth
 	templateDir string
 }
@@ -41,18 +38,7 @@ func NewService(cfg *config.Config) *Service {
 	}
 }
 
-func (s *Service) SetLogger(logger *zap.Logger) {
-	s.logger = logger
-}
-
 func (s *Service) VerifyEmail(ctx context.Context, req *EmailPayload) (*notification.StandardResponse, error) {
-	if req == nil {
-		return nil, fmt.Errorf("email request cannot be nil")
-	}
-	if req.To == "" {
-		return nil, fmt.Errorf("email type and recipient are required")
-	}
-
 	// Fetch the template config
 	templateConfig, exists := EmailTemplates[req.EMAIL_TYPE]
 	if !exists {
