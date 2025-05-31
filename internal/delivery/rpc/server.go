@@ -3,6 +3,7 @@ package rpc
 import (
 	"context"
 	"net"
+	"ride-sharing-notification/internal/delivery/rpc/emailsvc"
 	"ride-sharing-notification/internal/pkg/email"
 	"ride-sharing-notification/internal/pkg/logging"
 	"ride-sharing-notification/internal/pkg/middleware"
@@ -21,7 +22,7 @@ type GRPCServer struct {
 	notification.UnimplementedNotificationServiceServer
 	server       *grpc.Server
 	healthServer *health.Server
-	emailHandler *EmailHandler
+	emailHandler *emailsvc.Handler
 	// pushHandler   *PushHandler
 	shutdownGrace time.Duration
 }
@@ -34,13 +35,8 @@ func NewGRPCServer(
 	}
 
 	// Initialize handlers
-	s.emailHandler = NewEmailHandler(emailService)
+	s.emailHandler = emailsvc.NewHandler(emailService)
 	// s.pushHandler = NewPushHandler(pushService)
-
-	// // Apply options
-	// for _, opt := range opts {
-	// 	opt(s)
-	// }
 
 	return s
 }
