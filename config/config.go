@@ -34,7 +34,9 @@ type Config struct {
 		Timeout   time.Duration
 	}
 	Kafka struct {
-		Brokers []string
+		Brokers  []string
+		Topic    string
+		Balancer string
 	}
 	GRPC struct {
 		Port string
@@ -69,7 +71,9 @@ func Load() (*Config, error) {
 	cfg.Email.Timeout = getEnvAsDuration("EMAIL_TIMEOUT", 10*time.Second)
 
 	// Kafka configuration
-	cfg.Kafka.Brokers = getEnvAsSlice("KAFKA_BROKERS", []string{"localhost:9092"}, ",")
+	cfg.Kafka.Brokers = []string{getEnv("KAFKA_BROKER", "localhost:9092")}
+	cfg.Kafka.Topic = getEnv("KAFKA_TOPIC", "default-topic")
+	cfg.Kafka.Balancer = getEnv("KAFKA_BALANCER", "least-bytes")
 
 	// gRPC configuration
 	cfg.GRPC.Port = getEnv("GRPC_PORT", "50051")

@@ -4,21 +4,14 @@ import (
 	"context"
 	"time"
 
-	"ride-sharing-notification/internal/delivery/rpc"
-
 	"go.uber.org/zap"
 )
 
 type Handler struct {
-	rpcServer *rpc.Server
-	logger    *zap.Logger
 }
 
-func NewHandler(rpcServer *rpc.Server, logger *zap.Logger) *Handler {
-	return &Handler{
-		rpcServer: rpcServer,
-		logger:    logger,
-	}
+func NewHandler() *Handler {
+	return &Handler{}
 }
 
 func (h *Handler) Handle(ctx context.Context, message []byte) error {
