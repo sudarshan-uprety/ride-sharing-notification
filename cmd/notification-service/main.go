@@ -6,11 +6,11 @@ import (
 	"os"
 	"os/signal"
 	"ride-sharing-notification/config"
+	"ride-sharing-notification/internal/delivery/kafka"
 	"ride-sharing-notification/internal/delivery/rpc"
 	"ride-sharing-notification/internal/pkg/email"
 	"ride-sharing-notification/internal/pkg/logging"
 	"syscall"
-	"time"
 )
 
 func main() {
@@ -34,7 +34,12 @@ func main() {
 		if err := grpcServer.Start(cfg.GRPC.Port); err != nil {
 		}
 	}()
+	// Start Kafka consumer
+	ctx, cancel := context.WithCancel(context.Background())
+	kafkaHandler := kafka.NewMessageHandler()
+	consumer := kafka.NewConsumer(cfg.Kafka.Brokers, cfg.Kafka.Topic, cfg.Kafka.GroupId, kafkaHandler)
 
+	go consumer.Start(ctx)
 	// Wait for interrupt signal
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
@@ -43,7 +48,7 @@ func main() {
 	<-quit
 
 	// Create shutdown context with timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	// Gracefully stop the server

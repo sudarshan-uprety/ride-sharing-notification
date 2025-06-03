@@ -37,6 +37,7 @@ type Config struct {
 		Brokers  []string
 		Topic    string
 		Balancer string
+		GroupId  string
 	}
 	GRPC struct {
 		Port string
@@ -74,6 +75,7 @@ func Load() (*Config, error) {
 	cfg.Kafka.Brokers = []string{getEnv("KAFKA_BROKER", "localhost:9092")}
 	cfg.Kafka.Topic = getEnv("KAFKA_TOPIC", "default-topic")
 	cfg.Kafka.Balancer = getEnv("KAFKA_BALANCER", "least-bytes")
+	cfg.Kafka.GroupId = getEnv("KAFKA_GROUP_ID", "user-events-reader")
 
 	// gRPC configuration
 	cfg.GRPC.Port = getEnv("GRPC_PORT", "50051")

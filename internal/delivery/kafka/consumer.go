@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/segmentio/kafka-go"
@@ -9,38 +10,59 @@ import (
 
 type Consumer struct {
 	reader  *kafka.Reader
-	handler *Handler
+	handler Handler
 }
 
-func NewConsumer(brokers []string, topic string, groupID string) *Consumer {
+type Config struct {
+	Brokers []string
+	Topic   string
+	GroupID string
+}
+
+func NewConsumer(broker []string, topic string, groupID string, handler Handler) *Consumer {
 	return &Consumer{
 		reader: kafka.NewReader(kafka.ReaderConfig{
-			Brokers: brokers,
-			GroupID: groupID,
-			Topic:   topic,
-			MaxWait: 10 * time.Second,
+			Brokers:        broker,
+			Topic:          topic,
+			GroupID:        groupID,
+			MinBytes:       10,
+			MaxBytes:       10e6,
+			CommitInterval: time.Second,
+			StartOffset:    kafka.FirstOffset,
 		}),
-		handler: NewHandler(rpcServer, logger),
+		handler: handler,
 	}
 }
 
-func (c *Consumer) Run(ctx context.Context) error {
+func (c *Consumer) Start(ctx context.Context) {
+
 	for {
 		select {
 		case <-ctx.Done():
-			return c.reader.Close()
+			return
 		default:
-			msg, err := c.reader.FetchMessage(ctx)
+			m, err := c.reader.ReadMessage(ctx)
 			if err != nil {
+				if ctx.Err() != nil {
+					return
+				}
+				time.Sleep(1 * time.Second)
 				continue
 			}
 
-			if err := c.handler.Handle(ctx, msg.Value); err != nil {
-				continue
-			}
+			log.Printf("Message received: topic=%s partition=%d offset=%d\n",
+				m.Topic, m.Partition, m.Offset)
 
-			if err := c.reader.CommitMessages(ctx, msg); err != nil {
-			}
+			go func(msg kafka.Message) {
+				if err := c.handler.Handle(msg); err != nil {
+					log.Printf("Handler failed: %v (message: %s)\n", err, string(msg.Value))
+				}
+			}(m)
 		}
 	}
+}
+
+func (c *Consumer) Close() error {
+	log.Println("Closing consumer...")
+	return c.reader.Close()
 }

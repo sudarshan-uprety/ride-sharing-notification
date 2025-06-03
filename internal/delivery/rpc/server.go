@@ -34,7 +34,6 @@ func NewGRPCServer(emailService *email.Service) *GRPCServer {
 }
 
 func (s *GRPCServer) Start(port string) error {
-	println(s.emailHandler)
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		return err
