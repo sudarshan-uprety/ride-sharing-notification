@@ -1,7 +1,7 @@
 package email
 
 const (
-	EmailTypeRegister       = "REGISTER"
+	EmailTypeRegister       = "USER_REGISTER"
 	EmailTypeForgetPassword = "FORGET_PASSWORD"
 	EmailTypeResetPassword  = "RESET_PASSWORD"
 )

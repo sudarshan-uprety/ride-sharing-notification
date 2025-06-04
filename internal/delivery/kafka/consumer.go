@@ -2,7 +2,6 @@ package kafka
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/segmentio/kafka-go"
@@ -49,13 +48,9 @@ func (c *Consumer) Start(ctx context.Context) {
 				time.Sleep(1 * time.Second)
 				continue
 			}
-
-			log.Printf("Message received: topic=%s partition=%d offset=%d\n",
-				m.Topic, m.Partition, m.Offset)
-
 			go func(msg kafka.Message) {
 				if err := c.handler.Handle(msg); err != nil {
-					log.Printf("Handler failed: %v (message: %s)\n", err, string(msg.Value))
+					return
 				}
 			}(m)
 		}
@@ -63,6 +58,5 @@ func (c *Consumer) Start(ctx context.Context) {
 }
 
 func (c *Consumer) Close() error {
-	log.Println("Closing consumer...")
 	return c.reader.Close()
 }

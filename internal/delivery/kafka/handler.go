@@ -3,6 +3,7 @@ package kafka
 import (
 	"encoding/json"
 	"log"
+	"ride-sharing-notification/internal/pkg/email"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -24,11 +25,10 @@ func (h *MessageHandler) Handle(msg kafka.Message) error {
 		return err
 	}
 
-	log.Printf("[Kafka] Message received: %v\n", payload)
-
-	// Example: route by "type"
 	switch payload["type"] {
-	case "otp-forget-password":
+	case email.EmailTypeRegister:
+		log.Printf("Sending OTP to: %s (otp: %s)", payload["to"], payload["otp"])
+	case email.EmailTypeForgetPassword:
 		log.Printf("Sending OTP to: %s (otp: %s)", payload["to"], payload["otp"])
 	default:
 		log.Println("Unknown message type")

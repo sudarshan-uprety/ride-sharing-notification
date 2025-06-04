@@ -73,7 +73,7 @@ func Load() (*Config, error) {
 
 	// Kafka configuration
 	cfg.Kafka.Brokers = []string{getEnv("KAFKA_BROKER", "localhost:9092")}
-	cfg.Kafka.Topic = getEnv("KAFKA_TOPIC", "default-topic")
+	cfg.Kafka.Topic = getEnv("KAFKA_TOPIC", "user-events")
 	cfg.Kafka.Balancer = getEnv("KAFKA_BALANCER", "least-bytes")
 	cfg.Kafka.GroupId = getEnv("KAFKA_GROUP_ID", "user-events-reader")
 
