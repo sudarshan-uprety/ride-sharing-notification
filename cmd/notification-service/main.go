@@ -36,7 +36,7 @@ func main() {
 	}()
 	// Start Kafka consumer
 	ctx, cancel := context.WithCancel(context.Background())
-	kafkaHandler := kafka.NewMessageHandler()
+	kafkaHandler := kafka.NewMessageHandler(emailSvc)
 	consumer := kafka.NewConsumer(cfg.Kafka.Brokers, cfg.Kafka.Topic, cfg.Kafka.GroupId, kafkaHandler)
 
 	go consumer.Start(ctx)

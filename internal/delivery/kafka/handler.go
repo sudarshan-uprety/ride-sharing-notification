@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"ride-sharing-notification/internal/pkg/email"
@@ -12,27 +13,32 @@ type Handler interface {
 	Handle(msg kafka.Message) error
 }
 
-type MessageHandler struct{}
+type MessageHandler struct {
+	emailSvc *email.Service
+}
 
-func NewMessageHandler() *MessageHandler {
-	return &MessageHandler{}
+func NewMessageHandler(emailSvc *email.Service) *MessageHandler {
+	return &MessageHandler{
+		emailSvc: emailSvc,
+	}
 }
 
 func (h *MessageHandler) Handle(msg kafka.Message) error {
-	var payload map[string]string
+	var payload map[string]interface{}
 
 	if err := json.Unmarshal(msg.Value, &payload); err != nil {
 		return err
 	}
 
-	switch payload["type"] {
-	case email.EmailTypeRegister:
-		log.Printf("Sending OTP to: %s (otp: %s)", payload["to"], payload["otp"])
-	case email.EmailTypeForgetPassword:
-		log.Printf("Sending OTP to: %s (otp: %s)", payload["to"], payload["otp"])
-	default:
-		log.Println("Unknown message type")
+	log.Printf("Sending OTP to: %s (otp: %s)", payload["to"], payload["otp"])
+
+	emailPayload := &email.EmailPayload{
+		To:         payload["to"].(string),
+		EMAIL_TYPE: payload["type"].(string),
+		Data:       payload,
 	}
+
+	h.emailSvc.VerifyEmail(context.Background(), emailPayload)
 
 	return nil
 }
