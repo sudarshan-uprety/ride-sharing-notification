@@ -1,7 +1,6 @@
 package kafka
 
 import (
-	"context"
 	"encoding/json"
 	"log"
 	"ride-sharing-notification/internal/pkg/email"
@@ -37,8 +36,8 @@ func (h *MessageHandler) Handle(msg kafka.Message) error {
 		EMAIL_TYPE: payload["type"].(string),
 		Data:       payload,
 	}
-
-	h.emailSvc.VerifyEmail(context.Background(), emailPayload)
+	log.Println(emailPayload)
+	// h.emailSvc.VerifyEmail(context.Background(), emailPayload)
 
 	return nil
 }

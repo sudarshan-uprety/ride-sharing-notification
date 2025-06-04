@@ -26,7 +26,7 @@ func NewConsumer(broker []string, topic string, groupID string, handler Handler)
 			GroupID:        groupID,
 			MinBytes:       10,
 			MaxBytes:       10e6,
-			CommitInterval: time.Second,
+			CommitInterval: time.Second, // How often to commit offsets
 			StartOffset:    kafka.FirstOffset,
 		}),
 		handler: handler,
@@ -34,7 +34,6 @@ func NewConsumer(broker []string, topic string, groupID string, handler Handler)
 }
 
 func (c *Consumer) Start(ctx context.Context) {
-
 	for {
 		select {
 		case <-ctx.Done():
@@ -48,8 +47,16 @@ func (c *Consumer) Start(ctx context.Context) {
 				time.Sleep(1 * time.Second)
 				continue
 			}
+
+			// Process message in a goroutine
 			go func(msg kafka.Message) {
+				// Process the message
 				if err := c.handler.Handle(msg); err != nil {
+					return
+				}
+
+				// If processing succeeds, commit the offset
+				if err := c.reader.CommitMessages(ctx, msg); err != nil {
 					return
 				}
 			}(m)
