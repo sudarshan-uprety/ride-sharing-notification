@@ -1,0 +1,3 @@
+[submodule "internal/proto/shared"]
+	path = internal/proto/shared
+	url = https://gitlab.sudarshan-uprety.com.np/engineers/ride-sharing-protos.git

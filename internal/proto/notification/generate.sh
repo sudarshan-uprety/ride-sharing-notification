@@ -2,11 +2,11 @@
 
 set -e
 
-PROTO_DIR=.
-PROTO_FILE=service.proto
-OUTPUT_DIR=.
+# Navigate to the shared protos directory
+cd internal/proto/shared/api/notifications
 
-cd internal/proto/notification
-protoc --go_out=. --go_opt=paths=source_relative \
-       --go-grpc_out=. --go-grpc_opt=paths=source_relative \
-       service.proto
+# Run the generation script from the shared repo
+./generate.sh
+
+# Copy or move the generated files to where your service expects them
+cp -r grpcFiles/* ../../../notification/
