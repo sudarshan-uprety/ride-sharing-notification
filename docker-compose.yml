@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  app:
+    image: app:${DOCKER_IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # volumes:
+    #   - ./.env:/app/.env
+    container_name: ride-sharing
+    restart: unless-stopped
+    env_file: .env
